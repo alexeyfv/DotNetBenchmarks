@@ -1,3 +1,3 @@
-# Benchmark
+# ⚡️ .NET Benchmarks
 
-Template project for benchmarking
+A repo for the different kind of benchmarks
