@@ -11,4 +11,5 @@
   <Project Path="StringVsSpan/StringVsSpan.csproj" />
   <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
   <Project Path="LoopsPerformance/LoopsPerformance.csproj" />
+  <Project Path="FrozenDictionaryCollisionsCounting/FrozenDictionaryCollisionsCounting.csproj" />
 </Solution>
