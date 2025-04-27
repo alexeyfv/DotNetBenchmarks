@@ -9,4 +9,5 @@
   <Project Path="ObjectPool/ObjectPool.csproj" />
   <Project Path="CollectionsPerformance/CollectionsPerformance.csproj" />
   <Project Path="StringVsSpan/StringVsSpan.csproj" />
+  <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
 </Solution>
