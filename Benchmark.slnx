@@ -4,13 +4,38 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Logging/Logging.csproj" />
-  <Project Path="Template/Template.csproj" />
-  <Project Path="ObjectPool/ObjectPool.csproj" />
-  <Project Path="CollectionsPerformance/CollectionsPerformance.csproj" />
-  <Project Path="StringVsSpan/StringVsSpan.csproj" />
-  <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
-  <Project Path="LoopsPerformance/LoopsPerformance.csproj" />
-  <Project Path="FrozenDictionaryCollisionsCounting/FrozenDictionaryCollisionsCounting.csproj" />
-  <Project Path="ClassVsStruct/ClassVsStruct.csproj" />
+  <Folder Name="/Logging/">
+    <Project Path="Logging/Logging.csproj" />
+  </Folder>
+  <Folder Name="/Template/">
+    <Project Path="Template/Template.csproj" />
+  </Folder>
+  <Folder Name="/ObjectPool/">
+    <Project Path="ObjectPool/ObjectPool.csproj" />
+  </Folder>
+  <Folder Name="/CollectionsPerformance/">
+    <Project Path="CollectionsPerformance/CollectionsPerformance.csproj" />
+  </Folder>
+  <Folder Name="/StringVsSpan/">
+    <Project Path="StringVsSpan/StringVsSpan.csproj" />
+  </Folder>
+  <Folder Name="/HowDataAffectsPerformance/">
+    <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
+  </Folder>
+  <Folder Name="/LoopsPerformance/">
+    <Project Path="LoopsPerformance/LoopsPerformance.csproj" />
+  </Folder>
+  <Folder Name="/FrozenDictionaryCollisionsCounting/">
+    <Project Path="FrozenDictionaryCollisionsCounting/FrozenDictionaryCollisionsCounting.csproj" />
+  </Folder>
+  <Folder Name="/DictionaryWithCollectionsMarshal/CodeGen/">
+    <Project Path="DictionaryWithCollectionsMarshal/CodeGen/CodeGen.csproj" />
+  </Folder>
+  <Folder Name="/DictionaryWithCollectionsMarshal/Benchmark/">
+    <Project
+      Path="DictionaryWithCollectionsMarshal/Benchmark/DictionaryWithCollectionsMarshal.csproj" />
+  </Folder>
+  <Folder Name="/ClassVsStruct/">
+    <Project Path="ClassVsStruct/ClassVsStruct.csproj" />
+  </Folder>
 </Solution>
