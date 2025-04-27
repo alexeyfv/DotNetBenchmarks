@@ -41,4 +41,7 @@
   <Folder Name="/FrozenDictionary/">
     <Project Path="FrozenDictionary/FrozenDictionary.csproj" />
   </Folder>
+  <Folder Name="/EntityFrameworkInheritance/">
+    <Project Path="EntityFrameworkInheritance/EntityFrameworkInheritance.csproj" />
+  </Folder>
 </Solution>
