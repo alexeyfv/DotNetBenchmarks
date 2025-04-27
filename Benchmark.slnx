@@ -12,4 +12,5 @@
   <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
   <Project Path="LoopsPerformance/LoopsPerformance.csproj" />
   <Project Path="FrozenDictionaryCollisionsCounting/FrozenDictionaryCollisionsCounting.csproj" />
+  <Project Path="ClassVsStruct/ClassVsStruct.csproj" />
 </Solution>
