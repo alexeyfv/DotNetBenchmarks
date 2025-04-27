@@ -7,4 +7,5 @@
   <Project Path="Logging/Logging.csproj" />
   <Project Path="Template/Template.csproj" />
   <Project Path="ObjectPool/ObjectPool.csproj" />
+  <Project Path="CollectionsPerformance/CollectionsPerformance.csproj" />
 </Solution>
