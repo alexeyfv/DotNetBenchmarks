@@ -47,4 +47,7 @@
   <Folder Name="/CreateArray/">
     <Project Path="CreateArray/CreateArray.csproj" />
   </Folder>
+  <Folder Name="/FrozenDictionaryFastModAlgorithm/">
+    <Project Path="FrozenDictionaryFastModAlgorithm/FrozenDictionaryFastModAlgorithm.csproj" />
+  </Folder>
 </Solution>
