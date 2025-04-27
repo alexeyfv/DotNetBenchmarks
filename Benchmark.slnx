@@ -10,4 +10,5 @@
   <Project Path="CollectionsPerformance/CollectionsPerformance.csproj" />
   <Project Path="StringVsSpan/StringVsSpan.csproj" />
   <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
+  <Project Path="LoopsPerformance/LoopsPerformance.csproj" />
 </Solution>
