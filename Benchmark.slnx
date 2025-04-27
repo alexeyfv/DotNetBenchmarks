@@ -38,4 +38,7 @@
   <Folder Name="/ClassVsStruct/">
     <Project Path="ClassVsStruct/ClassVsStruct.csproj" />
   </Folder>
+  <Folder Name="/FrozenDictionary/">
+    <Project Path="FrozenDictionary/FrozenDictionary.csproj" />
+  </Folder>
 </Solution>
