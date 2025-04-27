@@ -44,4 +44,7 @@
   <Folder Name="/EntityFrameworkInheritance/">
     <Project Path="EntityFrameworkInheritance/EntityFrameworkInheritance.csproj" />
   </Folder>
+  <Folder Name="/CreateArray/">
+    <Project Path="CreateArray/CreateArray.csproj" />
+  </Folder>
 </Solution>
