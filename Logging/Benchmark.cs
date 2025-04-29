@@ -11,8 +11,7 @@ namespace Benchmark;
 [SimpleJob(iterationCount: 20)]
 public partial class Benchmark
 {
-    // [Params(100, 1000, 10_000, 100_000)]
-    [Params(100_000)]
+    [Params(100, 1000, 10_000, 100_000)]
     public int Length { get; set; }
 
     private int[] Integers { get; set; } = [];
@@ -38,7 +37,7 @@ public partial class Benchmark
 
         for (var i = 0; i < Length; i++)
         {
-            _logger.LogDebug("Integers: {i1}, {i2}, {i3}, {i4}, {i5}, {i6}, {i7}", Integers[i], Integers[i], Integers[i], Integers[i], Integers[i], Integers[i], Integers[i]);
+            _logger.LogDebug("Integers: {i1}, {i2}, {i3}, {i4}, {i5}", Integers[i], Integers[i], Integers[i], Integers[i], Integers[i]);
             sum += i;
         }
 
@@ -52,7 +51,7 @@ public partial class Benchmark
 
         for (var i = 0; i < Length; i++)
         {
-            _logger.LogDebug($"Integers: {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}");
+            _logger.LogDebug($"Integers: {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}, {Integers[i]}");
             sum += i;
         }
 
@@ -66,22 +65,13 @@ public partial class Benchmark
 
         for (var i = 0; i < Length; i++)
         {
-            LogIntegers(_logger, Integers[i], Integers[i], Integers[i], Integers[i], Integers[i], Integers[i], Integers[i]);
+            LogIntegers(_logger, Integers[i], Integers[i], Integers[i], Integers[i], Integers[i]);
             sum += i;
         }
 
         return sum;
     }
 
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Integers: {i1}, {i2}, {i3}, {i4}, {i5}, {i6}, {i7}")]
-    public static partial void LogIntegers(ILogger logger, int i1, int i2, int i3, int i4, int i5, int i6, int i7);
-
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Integers: {i1}, {i2}, {i3}, {i4}")]
-    public static partial void LogIntegers(ILogger logger, int i1, int i2, int i3, int i4);
-
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Integers: {i1}, {i2}")]
-    public static partial void LogIntegers(ILogger logger, int i1, int i2);
-    
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Integers: {i1}")]
-    public static partial void LogIntegers(ILogger logger, int i1);
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Integers: {i1}, {i2}, {i3}, {i4}, {i5}")]
+    public static partial void LogIntegers(ILogger logger, int i1, int i2, int i3, int i4, int i5);
 }
