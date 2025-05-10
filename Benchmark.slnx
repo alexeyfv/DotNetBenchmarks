@@ -19,6 +19,9 @@
   <Folder Name="/StringVsSpan/">
     <Project Path="StringVsSpan/StringVsSpan.csproj" />
   </Folder>
+  <Folder Name="/Hashing/">
+    <Project Path="Hashing/Hashing.csproj" />
+  </Folder>
   <Folder Name="/HowDataAffectsPerformance/">
     <Project Path="HowDataAffectsPerformance/HowDataAffectsPerformance.csproj" />
   </Folder>
@@ -31,9 +34,9 @@
   <Folder Name="/DictionaryWithCollectionsMarshal/CodeGen/">
     <Project Path="DictionaryWithCollectionsMarshal/CodeGen/CodeGen.csproj" />
   </Folder>
+  <Folder Name="/DictionaryWithCollectionsMarshal/" />
   <Folder Name="/DictionaryWithCollectionsMarshal/Benchmark/">
-    <Project
-      Path="DictionaryWithCollectionsMarshal/Benchmark/DictionaryWithCollectionsMarshal.csproj" />
+    <Project Path="DictionaryWithCollectionsMarshal/Benchmark/DictionaryWithCollectionsMarshal.csproj" />
   </Folder>
   <Folder Name="/ClassVsStruct/">
     <Project Path="ClassVsStruct/ClassVsStruct.csproj" />
