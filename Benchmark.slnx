@@ -56,4 +56,5 @@
   <Folder Name="/Substring/">
     <Project Path="Substring/Substring.csproj" />
   </Folder>
+  <Project Path="CodeAnalysis/CodeAnalysis.csproj" />
 </Solution>
