@@ -23,16 +23,31 @@ public class HashAlgorithms
     }
 
     [Benchmark]
-    public byte[] XXHash3() => XxHash3.Hash(data);
+    public int GxHashHash32() => GxHash.Hash32(data, 0);
 
     [Benchmark]
-    public byte[] XXHash64() => XxHash64.Hash(data);
+    public uint GxHashHashU32() => GxHash.HashU32(data, 0);
 
     [Benchmark]
-    public byte[] XXHash32() => XxHash32.Hash(data);
+    public long GxHashHash64() => GxHash.Hash64(data, 0);
 
     [Benchmark]
-    public byte[] XXHash128() => XxHash128.Hash(data);
+    public ulong GxHashHashU64() => GxHash.HashU64(data, 0);
+
+    [Benchmark]
+    public UInt128 GxHashHash128() => GxHash.Hash128(data, 0);
+
+    [Benchmark]
+    public ulong XXHash3() => XxHash3.HashToUInt64(data);
+
+    [Benchmark]
+    public ulong XXHash64() => XxHash64.HashToUInt64(data);
+
+    [Benchmark]
+    public uint XXHash32() => XxHash32.HashToUInt32(data);
+
+    [Benchmark]
+    public UInt128 XXHash128() => XxHash128.HashToUInt128(data);
 
     [Benchmark]
     public byte[] Sha1() => SHA1.HashData(data);
@@ -58,3 +73,4 @@ public class HashAlgorithms
     [Benchmark]
     public byte[] Md5() => MD5.HashData(data);
 }
+

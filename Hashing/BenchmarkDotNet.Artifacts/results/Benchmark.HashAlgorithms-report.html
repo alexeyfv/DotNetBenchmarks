@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.HashAlgorithms-20250512-221240</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.3915)
+AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+  Job-TVBBPY : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>IterationCount=25  
+</code></pre>
+
+<table>
+<thead><tr><th>Method </th><th>N</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>GxHashHash32</td><td>102400</td><td>1.645 &mu;s</td><td>0.0244 &mu;s</td><td>0.0325 &mu;s</td><td>-</td>
+</tr><tr><td>GxHashHashU32</td><td>102400</td><td>1.608 &mu;s</td><td>0.0145 &mu;s</td><td>0.0183 &mu;s</td><td>-</td>
+</tr><tr><td>GxHashHash64</td><td>102400</td><td>1.653 &mu;s</td><td>0.0195 &mu;s</td><td>0.0253 &mu;s</td><td>-</td>
+</tr><tr><td>GxHashHashU64</td><td>102400</td><td>1.681 &mu;s</td><td>0.0283 &mu;s</td><td>0.0378 &mu;s</td><td>-</td>
+</tr><tr><td>GxHashHash128</td><td>102400</td><td>1.706 &mu;s</td><td>0.0344 &mu;s</td><td>0.0447 &mu;s</td><td>-</td>
+</tr><tr><td>XXHash3</td><td>102400</td><td>11.747 &mu;s</td><td>0.2621 &mu;s</td><td>0.3499 &mu;s</td><td>-</td>
+</tr><tr><td>XXHash64</td><td>102400</td><td>12.351 &mu;s</td><td>0.2321 &mu;s</td><td>0.3099 &mu;s</td><td>-</td>
+</tr><tr><td>XXHash32</td><td>102400</td><td>17.002 &mu;s</td><td>0.4256 &mu;s</td><td>0.5681 &mu;s</td><td>-</td>
+</tr><tr><td>XXHash128</td><td>102400</td><td>11.817 &mu;s</td><td>0.2981 &mu;s</td><td>0.3979 &mu;s</td><td>-</td>
+</tr><tr><td>Sha1</td><td>102400</td><td>180.386 &mu;s</td><td>4.2214 &mu;s</td><td>5.6354 &mu;s</td><td>48 B</td>
+</tr><tr><td>Sha2_256</td><td>102400</td><td>60.650 &mu;s</td><td>0.7496 &mu;s</td><td>0.9206 &mu;s</td><td>56 B</td>
+</tr><tr><td>Sha2_384</td><td>102400</td><td>229.142 &mu;s</td><td>5.7161 &mu;s</td><td>7.6308 &mu;s</td><td>72 B</td>
+</tr><tr><td>Sha2_512</td><td>102400</td><td>245.707 &mu;s</td><td>6.4021 &mu;s</td><td>8.5467 &mu;s</td><td>88 B</td>
+</tr><tr><td>Sha3_256</td><td>102400</td><td>378.933 &mu;s</td><td>12.9461 &mu;s</td><td>17.2827 &mu;s</td><td>56 B</td>
+</tr><tr><td>Sha3_384</td><td>102400</td><td>469.975 &mu;s</td><td>17.2153 &mu;s</td><td>22.9820 &mu;s</td><td>72 B</td>
+</tr><tr><td>Sha3_512</td><td>102400</td><td>685.950 &mu;s</td><td>16.1847 &mu;s</td><td>21.6061 &mu;s</td><td>88 B</td>
+</tr><tr><td>Md5</td><td>102400</td><td>192.667 &mu;s</td><td>1.0858 &mu;s</td><td>1.3335 &mu;s</td><td>40 B</td>
+</tr></tbody></table>
+</body>
+</html>
