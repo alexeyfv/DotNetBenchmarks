@@ -10,13 +10,21 @@ namespace Benchmark;
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
 [MemoryDiagnoser]
-[SimpleJob(iterationCount: 20)]
+[SimpleJob(iterationCount: 50)]
 public class Ca1826
 {
-    [Params(1000)]
+    [ParamsSource(nameof(Generate_10_to_100000))]
     public int Length { get; set; }
 
     private IReadOnlyList<string> ReadOnlyList { get; set; } = null!;
+
+    public static IEnumerable<int> Generate_10_to_100000()
+    {
+        for (int i = 10; i < 100; i += 9) yield return i;
+        for (int i = 100; i < 1_000; i += 36) yield return i;
+        for (int i = 1_000; i < 10_000; i += 360) yield return i;
+        for (int i = 10_000; i <= 100_000; i += 3_600) yield return i;
+    }
 
     [GlobalSetup]
     public void Setup()
