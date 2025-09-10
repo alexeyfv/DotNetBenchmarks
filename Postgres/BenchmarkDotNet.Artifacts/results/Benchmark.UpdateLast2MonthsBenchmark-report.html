@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.UpdateLast2MonthsBenchmark-20250907-225400</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
+AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.413
+  [Host]     : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+  Job-QGAFTE : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>InvocationCount=1  IterationCount=25  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method   </th><th>ResourceCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Gen1</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>IndexRecreation</td><td>100000</td><td>670.8 ms</td><td>19.93 ms</td><td>25.92 ms</td><td>+26%</td><td>5.9%</td><td>4000.0000</td><td>1000.0000</td><td>9.16 MB</td><td>+0%</td>
+</tr><tr><td>Default</td><td>100000</td><td>533.1 ms</td><td>19.37 ms</td><td>25.19 ms</td><td>baseline</td><td></td><td>4000.0000</td><td>1000.0000</td><td>9.16 MB</td><td></td>
+</tr><tr><td>Partitioned</td><td>100000</td><td>363.7 ms</td><td>14.20 ms</td><td>18.95 ms</td><td>-32%</td><td>6.8%</td><td>4000.0000</td><td>1000.0000</td><td>9.16 MB</td><td>+0%</td>
+</tr></tbody></table>
+</body>
+</html>

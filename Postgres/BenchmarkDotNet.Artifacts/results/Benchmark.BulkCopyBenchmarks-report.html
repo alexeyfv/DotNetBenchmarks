@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.BulkCopyBenchmarks-20250910-071327</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
+AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.413
+  [Host]     : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+  Job-TJELOH : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>InvocationCount=1  IterationCount=25  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                                 </th><th>ResourceCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>BulkCopyNoIndex</td><td>100000</td><td>99.13 ms</td><td>8.758 ms</td><td>11.69 ms</td><td>baseline</td><td></td><td>93.47 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>100000</td><td>215.01 ms</td><td>8.334 ms</td><td>10.84 ms</td><td>+120%</td><td>12.3%</td><td>96.23 KB</td><td>+3%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>100000</td><td>418.57 ms</td><td>55.765 ms</td><td>74.45 ms</td><td>+328%</td><td>20.9%</td><td>94.7 KB</td><td>+1%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>100000</td><td>723.97 ms</td><td>16.913 ms</td><td>21.99 ms</td><td>+640%</td><td>11.7%</td><td>93.51 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>100000</td><td>927.97 ms</td><td>81.086 ms</td><td>108.25 ms</td><td>+848%</td><td>16.1%</td><td>93.45 KB</td><td>-0%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>100000</td><td>436.25 ms</td><td>18.649 ms</td><td>24.90 ms</td><td>+346%</td><td>12.6%</td><td>94.8 KB</td><td>+1%</td>
+</tr></tbody></table>
+</body>
+</html>

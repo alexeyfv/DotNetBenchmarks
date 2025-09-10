@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.DeleteLast2MonthsBenchmark-20250907-230634</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
+AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.413
+  [Host]     : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+  Job-VWLKHT : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>InvocationCount=1  IterationCount=25  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method            </th><th>ResourceCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>DeleteLast2Months</td><td>100000</td><td>212.122 ms</td><td>12.9770 ms</td><td>17.3240 ms</td><td>baseline</td><td></td><td>2.19 KB</td><td></td>
+</tr><tr><td>DropLast2MonthPartitions</td><td>100000</td><td>3.354 ms</td><td>0.3788 ms</td><td>0.4791 ms</td><td>-98%</td><td>16.0%</td><td>2.59 KB</td><td>+18%</td>
+</tr></tbody></table>
+</body>
+</html>
