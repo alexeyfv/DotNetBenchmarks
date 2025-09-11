@@ -8,8 +8,16 @@ namespace Benchmark;
 [SimpleJob(iterationCount: Iterations)]
 public class DeleteLast2MonthsBenchmark : BenchmarkBase
 {
-    [Params(100_000)]
+    [ParamsSource(nameof(Generate))]
     public override int ResourceCount { get; set; }
+
+    public static IEnumerable<int> Generate()
+    {
+        for (int i = 10; i < 100; i += 9) yield return i;
+        for (int i = 100; i < 1_000; i += 36) yield return i;
+        for (int i = 1_000; i < 10_000; i += 360) yield return i;
+        for (int i = 10_000; i <= 100_000; i += 3_600) yield return i;
+    }
 
     [GlobalSetup]
     public void Setup()

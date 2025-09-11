@@ -4,16 +4,44 @@ BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
 AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
 .NET SDK 8.0.413
   [Host]     : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
-  Job-TJELOH : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+  Job-HKXWXY : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
 
 InvocationCount=1  IterationCount=25  UnrollFactor=1  
 
 ```
-| Method                                        | ResourceCount | Mean      | Error     | StdDev    | Ratio    | RatioSD | Allocated | Alloc Ratio |
-|---------------------------------------------- |-------------- |----------:|----------:|----------:|---------:|--------:|----------:|------------:|
-| BulkCopyNoIndex                               | 100000        |  99.13 ms |  8.758 ms |  11.69 ms | baseline |         |  93.47 KB |             |
-| BulkCopyCloudProviderIndex                    | 100000        | 215.01 ms |  8.334 ms |  10.84 ms |    +120% |   12.3% |  96.23 KB |         +3% |
-| BulkCopyCloudProviderAccountIndex             | 100000        | 418.57 ms | 55.765 ms |  74.45 ms |    +328% |   20.9% |   94.7 KB |         +1% |
-| BulkCopyCloudProviderAccountResourceIndex     | 100000        | 723.97 ms | 16.913 ms |  21.99 ms |    +640% |   11.7% |  93.51 KB |         +0% |
-| BulkCopyCloudProviderAccountResourceDateIndex | 100000        | 927.97 ms | 81.086 ms | 108.25 ms |    +848% |   16.1% |  93.45 KB |         -0% |
-| BulkCopyThenCreateIndexes                     | 100000        | 436.25 ms | 18.649 ms |  24.90 ms |    +346% |   12.6% |   94.8 KB |         +1% |
+| Method                                        | ResourceCount | Mean       | Error      | StdDev     | Ratio    | RatioSD | Allocated | Alloc Ratio |
+|---------------------------------------------- |-------------- |-----------:|-----------:|-----------:|---------:|--------:|----------:|------------:|
+| **BulkCopyNoIndex**                               | **10**            |   **1.260 ms** |  **0.2591 ms** |  **0.3369 ms** | **baseline** |        **** |   **3.48 KB** |            **** |
+| BulkCopyCloudProviderIndex                    | 10            |   1.540 ms |  0.3178 ms |  0.4019 ms |     +29% |   33.4% |   3.48 KB |         +0% |
+| BulkCopyCloudProviderAccountIndex             | 10            |   1.839 ms |  0.3727 ms |  0.4975 ms |     +54% |   34.2% |   3.48 KB |         +0% |
+| BulkCopyCloudProviderAccountResourceIndex     | 10            |   1.573 ms |  0.2607 ms |  0.3481 ms |     +32% |   30.4% |   3.48 KB |         +0% |
+| BulkCopyCloudProviderAccountResourceDateIndex | 10            |   2.198 ms |  0.5075 ms |  0.6774 ms |     +84% |   37.2% |   3.48 KB |         +0% |
+| BulkCopyThenCreateIndexes                     | 10            |   4.877 ms |  0.4723 ms |  0.6141 ms |    +309% |   24.3% |   5.61 KB |        +61% |
+|                                               |               |            |            |            |          |         |           |             |
+| **BulkCopyNoIndex**                               | **100**           |   **1.620 ms** |  **0.1322 ms** |  **0.1672 ms** | **baseline** |        **** |   **3.59 KB** |            **** |
+| BulkCopyCloudProviderIndex                    | 100           |   1.934 ms |  0.2583 ms |  0.3359 ms |     +21% |   19.8% |   3.59 KB |         +0% |
+| BulkCopyCloudProviderAccountIndex             | 100           |   2.767 ms |  0.6355 ms |  0.8484 ms |     +73% |   31.8% |   3.59 KB |         +0% |
+| BulkCopyCloudProviderAccountResourceIndex     | 100           |   2.668 ms |  0.4152 ms |  0.5399 ms |     +66% |   22.3% |   3.59 KB |         +0% |
+| BulkCopyCloudProviderAccountResourceDateIndex | 100           |   2.807 ms |  0.3883 ms |  0.5184 ms |     +75% |   20.8% |   3.59 KB |         +0% |
+| BulkCopyThenCreateIndexes                     | 100           |   4.862 ms |  0.8269 ms |  1.1039 ms |    +203% |   24.5% |   5.53 KB |        +54% |
+|                                               |               |            |            |            |          |         |           |             |
+| **BulkCopyNoIndex**                               | **1000**          |   **7.714 ms** |  **0.7369 ms** |  **0.9581 ms** | **baseline** |        **** |   **4.41 KB** |            **** |
+| BulkCopyCloudProviderIndex                    | 1000          |   6.941 ms |  0.3814 ms |  0.4959 ms |      -8% |   15.7% |   4.52 KB |         +2% |
+| BulkCopyCloudProviderAccountIndex             | 1000          |   9.797 ms |  0.8608 ms |  1.0572 ms |     +29% |   17.6% |   4.28 KB |         -3% |
+| BulkCopyCloudProviderAccountResourceIndex     | 1000          |  20.473 ms |  5.2703 ms |  7.0358 ms |    +170% |   36.8% |   4.11 KB |         -7% |
+| BulkCopyCloudProviderAccountResourceDateIndex | 1000          |  14.299 ms |  4.1218 ms |  5.5024 ms |     +89% |   40.6% |    4.3 KB |         -2% |
+| BulkCopyThenCreateIndexes                     | 1000          |  23.019 ms |  3.2361 ms |  4.3201 ms |    +204% |   23.3% |   6.39 KB |        +45% |
+|                                               |               |            |            |            |          |         |           |             |
+| **BulkCopyNoIndex**                               | **10000**         |  **14.849 ms** |  **2.0291 ms** |  **2.4155 ms** | **baseline** |        **** |  **13.31 KB** |            **** |
+| BulkCopyCloudProviderIndex                    | 10000         |  38.247 ms | 10.6692 ms | 14.2430 ms |    +163% |   39.0% |  12.33 KB |         -7% |
+| BulkCopyCloudProviderAccountIndex             | 10000         |  37.124 ms |  1.5413 ms |  1.8348 ms |    +155% |   13.7% |  12.58 KB |         -6% |
+| BulkCopyCloudProviderAccountResourceIndex     | 10000         |  62.260 ms |  1.5049 ms |  1.9568 ms |    +328% |   13.2% |  11.89 KB |        -11% |
+| BulkCopyCloudProviderAccountResourceDateIndex | 10000         |  69.518 ms |  2.4010 ms |  3.0364 ms |    +378% |   13.5% |  12.03 KB |        -10% |
+| BulkCopyThenCreateIndexes                     | 10000         |  50.795 ms |  3.6326 ms |  4.7234 ms |    +249% |   15.8% |  13.61 KB |         +2% |
+|                                               |               |            |            |            |          |         |           |             |
+| **BulkCopyNoIndex**                               | **100000**        | **105.589 ms** |  **9.2841 ms** | **12.3940 ms** | **baseline** |        **** |  **92.59 KB** |            **** |
+| BulkCopyCloudProviderIndex                    | 100000        | 215.305 ms |  7.6314 ms |  9.6513 ms |    +107% |   12.0% |  95.08 KB |         +3% |
+| BulkCopyCloudProviderAccountIndex             | 100000        | 379.260 ms | 16.8363 ms | 22.4760 ms |    +264% |   12.5% |  95.03 KB |         +3% |
+| BulkCopyCloudProviderAccountResourceIndex     | 100000        | 700.522 ms | 12.5749 ms | 16.3510 ms |    +572% |   11.3% |  92.47 KB |         -0% |
+| BulkCopyCloudProviderAccountResourceDateIndex | 100000        | 834.240 ms | 10.9927 ms | 14.6750 ms |    +700% |   11.2% |  94.88 KB |         +2% |
+| BulkCopyThenCreateIndexes                     | 100000        | 449.060 ms | 27.9645 ms | 37.3318 ms |    +331% |   13.8% |  95.55 KB |         +3% |

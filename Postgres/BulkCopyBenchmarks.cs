@@ -8,12 +8,17 @@ namespace Benchmark;
 [SimpleJob(iterationCount: Iterations)]
 public class BulkCopyBenchmarks : BenchmarkBase
 {
-    [Params(100_000)]
+    [Params(10, 100, 1_000, 10_000, 100_000)]
     public override int ResourceCount { get; set; }
 
     private DataRow[] DataRows = [];
 
-    private record DataRow(string CloudProvider, string CloudAccount, string Resource, DateTime BillingDate, int Cost);
+    private record DataRow(
+        string CloudProvider,
+        string CloudAccount,
+        string Resource,
+        DateTime BillingDate,
+        int Cost);
 
     private static ulong BulkCopy(NpgsqlConnection conn, string table, DataRow[] data)
     {

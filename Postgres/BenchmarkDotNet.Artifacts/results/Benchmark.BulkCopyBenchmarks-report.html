@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Benchmark.BulkCopyBenchmarks-20250910-071327</title>
+<title>Benchmark.BulkCopyBenchmarks-20250911-063916</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -17,7 +17,7 @@ BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
 AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
 .NET SDK 8.0.413
   [Host]     : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
-  Job-TJELOH : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
+  Job-HKXWXY : .NET 8.0.19 (8.0.1925.36514), X64 RyuJIT AVX2
 </code></pre>
 <pre><code>InvocationCount=1  IterationCount=25  UnrollFactor=1  
 </code></pre>
@@ -25,12 +25,36 @@ AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cor
 <table>
 <thead><tr><th>Method                                 </th><th>ResourceCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>BulkCopyNoIndex</td><td>100000</td><td>99.13 ms</td><td>8.758 ms</td><td>11.69 ms</td><td>baseline</td><td></td><td>93.47 KB</td><td></td>
-</tr><tr><td>BulkCopyCloudProviderIndex</td><td>100000</td><td>215.01 ms</td><td>8.334 ms</td><td>10.84 ms</td><td>+120%</td><td>12.3%</td><td>96.23 KB</td><td>+3%</td>
-</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>100000</td><td>418.57 ms</td><td>55.765 ms</td><td>74.45 ms</td><td>+328%</td><td>20.9%</td><td>94.7 KB</td><td>+1%</td>
-</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>100000</td><td>723.97 ms</td><td>16.913 ms</td><td>21.99 ms</td><td>+640%</td><td>11.7%</td><td>93.51 KB</td><td>+0%</td>
-</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>100000</td><td>927.97 ms</td><td>81.086 ms</td><td>108.25 ms</td><td>+848%</td><td>16.1%</td><td>93.45 KB</td><td>-0%</td>
-</tr><tr><td>BulkCopyThenCreateIndexes</td><td>100000</td><td>436.25 ms</td><td>18.649 ms</td><td>24.90 ms</td><td>+346%</td><td>12.6%</td><td>94.8 KB</td><td>+1%</td>
+</thead><tbody><tr><td>BulkCopyNoIndex</td><td>10</td><td>1.260 ms</td><td>0.2591 ms</td><td>0.3369 ms</td><td>baseline</td><td></td><td>3.48 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>10</td><td>1.540 ms</td><td>0.3178 ms</td><td>0.4019 ms</td><td>+29%</td><td>33.4%</td><td>3.48 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>10</td><td>1.839 ms</td><td>0.3727 ms</td><td>0.4975 ms</td><td>+54%</td><td>34.2%</td><td>3.48 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>10</td><td>1.573 ms</td><td>0.2607 ms</td><td>0.3481 ms</td><td>+32%</td><td>30.4%</td><td>3.48 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>10</td><td>2.198 ms</td><td>0.5075 ms</td><td>0.6774 ms</td><td>+84%</td><td>37.2%</td><td>3.48 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>10</td><td>4.877 ms</td><td>0.4723 ms</td><td>0.6141 ms</td><td>+309%</td><td>24.3%</td><td>5.61 KB</td><td>+61%</td>
+</tr><tr><td>BulkCopyNoIndex</td><td>100</td><td>1.620 ms</td><td>0.1322 ms</td><td>0.1672 ms</td><td>baseline</td><td></td><td>3.59 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>100</td><td>1.934 ms</td><td>0.2583 ms</td><td>0.3359 ms</td><td>+21%</td><td>19.8%</td><td>3.59 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>100</td><td>2.767 ms</td><td>0.6355 ms</td><td>0.8484 ms</td><td>+73%</td><td>31.8%</td><td>3.59 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>100</td><td>2.668 ms</td><td>0.4152 ms</td><td>0.5399 ms</td><td>+66%</td><td>22.3%</td><td>3.59 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>100</td><td>2.807 ms</td><td>0.3883 ms</td><td>0.5184 ms</td><td>+75%</td><td>20.8%</td><td>3.59 KB</td><td>+0%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>100</td><td>4.862 ms</td><td>0.8269 ms</td><td>1.1039 ms</td><td>+203%</td><td>24.5%</td><td>5.53 KB</td><td>+54%</td>
+</tr><tr><td>BulkCopyNoIndex</td><td>1000</td><td>7.714 ms</td><td>0.7369 ms</td><td>0.9581 ms</td><td>baseline</td><td></td><td>4.41 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>1000</td><td>6.941 ms</td><td>0.3814 ms</td><td>0.4959 ms</td><td>-8%</td><td>15.7%</td><td>4.52 KB</td><td>+2%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>1000</td><td>9.797 ms</td><td>0.8608 ms</td><td>1.0572 ms</td><td>+29%</td><td>17.6%</td><td>4.28 KB</td><td>-3%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>1000</td><td>20.473 ms</td><td>5.2703 ms</td><td>7.0358 ms</td><td>+170%</td><td>36.8%</td><td>4.11 KB</td><td>-7%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>1000</td><td>14.299 ms</td><td>4.1218 ms</td><td>5.5024 ms</td><td>+89%</td><td>40.6%</td><td>4.3 KB</td><td>-2%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>1000</td><td>23.019 ms</td><td>3.2361 ms</td><td>4.3201 ms</td><td>+204%</td><td>23.3%</td><td>6.39 KB</td><td>+45%</td>
+</tr><tr><td>BulkCopyNoIndex</td><td>10000</td><td>14.849 ms</td><td>2.0291 ms</td><td>2.4155 ms</td><td>baseline</td><td></td><td>13.31 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>10000</td><td>38.247 ms</td><td>10.6692 ms</td><td>14.2430 ms</td><td>+163%</td><td>39.0%</td><td>12.33 KB</td><td>-7%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>10000</td><td>37.124 ms</td><td>1.5413 ms</td><td>1.8348 ms</td><td>+155%</td><td>13.7%</td><td>12.58 KB</td><td>-6%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>10000</td><td>62.260 ms</td><td>1.5049 ms</td><td>1.9568 ms</td><td>+328%</td><td>13.2%</td><td>11.89 KB</td><td>-11%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>10000</td><td>69.518 ms</td><td>2.4010 ms</td><td>3.0364 ms</td><td>+378%</td><td>13.5%</td><td>12.03 KB</td><td>-10%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>10000</td><td>50.795 ms</td><td>3.6326 ms</td><td>4.7234 ms</td><td>+249%</td><td>15.8%</td><td>13.61 KB</td><td>+2%</td>
+</tr><tr><td>BulkCopyNoIndex</td><td>100000</td><td>105.589 ms</td><td>9.2841 ms</td><td>12.3940 ms</td><td>baseline</td><td></td><td>92.59 KB</td><td></td>
+</tr><tr><td>BulkCopyCloudProviderIndex</td><td>100000</td><td>215.305 ms</td><td>7.6314 ms</td><td>9.6513 ms</td><td>+107%</td><td>12.0%</td><td>95.08 KB</td><td>+3%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountIndex</td><td>100000</td><td>379.260 ms</td><td>16.8363 ms</td><td>22.4760 ms</td><td>+264%</td><td>12.5%</td><td>95.03 KB</td><td>+3%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceIndex</td><td>100000</td><td>700.522 ms</td><td>12.5749 ms</td><td>16.3510 ms</td><td>+572%</td><td>11.3%</td><td>92.47 KB</td><td>-0%</td>
+</tr><tr><td>BulkCopyCloudProviderAccountResourceDateIndex</td><td>100000</td><td>834.240 ms</td><td>10.9927 ms</td><td>14.6750 ms</td><td>+700%</td><td>11.2%</td><td>94.88 KB</td><td>+2%</td>
+</tr><tr><td>BulkCopyThenCreateIndexes</td><td>100000</td><td>449.060 ms</td><td>27.9645 ms</td><td>37.3318 ms</td><td>+331%</td><td>13.8%</td><td>95.55 KB</td><td>+3%</td>
 </tr></tbody></table>
 </body>
 </html>
