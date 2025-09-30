@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.SelectBenchmarks-20250928-190304</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Debian GNU/Linux 12 (bookworm)
+AMD Ryzen 5 PRO 4650U with Radeon Graphics, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.414
+  [Host]     : .NET 8.0.20 (8.0.2025.41914), X64 RyuJIT AVX2
+  Job-PBVRJP : .NET 8.0.20 (8.0.2025.41914), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>IterationCount=50  
+</code></pre>
+
+<table>
+<thead><tr><th>Method         </th><th>IndexCreation</th><th>BatchSize</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Select_HashAggregate</td><td>None</td><td>100000</td><td>25.12 ms</td><td>0.141 ms</td><td>0.285 ms</td><td>25.02 ms</td><td>125.0000</td><td>282.32 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>100000</td><td>25.15 ms</td><td>0.099 ms</td><td>0.194 ms</td><td>25.19 ms</td><td>125.0000</td><td>282.34 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>136000</td><td>34.00 ms</td><td>0.136 ms</td><td>0.274 ms</td><td>34.04 ms</td><td>133.3333</td><td>282.37 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>136000</td><td>33.59 ms</td><td>0.177 ms</td><td>0.357 ms</td><td>33.50 ms</td><td>125.0000</td><td>282.36 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>172000</td><td>41.58 ms</td><td>0.122 ms</td><td>0.236 ms</td><td>41.52 ms</td><td>83.3333</td><td>282.8 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>172000</td><td>41.62 ms</td><td>0.142 ms</td><td>0.284 ms</td><td>41.65 ms</td><td>83.3333</td><td>282.53 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>208000</td><td>50.64 ms</td><td>0.237 ms</td><td>0.479 ms</td><td>50.60 ms</td><td>100.0000</td><td>282.41 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>208000</td><td>39.57 ms</td><td>2.939 ms</td><td>5.937 ms</td><td>38.46 ms</td><td>100.0000</td><td>282.96 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>244000</td><td>58.30 ms</td><td>0.176 ms</td><td>0.355 ms</td><td>58.26 ms</td><td>111.1111</td><td>282.43 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>244000</td><td>42.51 ms</td><td>1.324 ms</td><td>2.674 ms</td><td>42.36 ms</td><td>111.1111</td><td>282.6 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>280000</td><td>66.76 ms</td><td>0.213 ms</td><td>0.420 ms</td><td>66.65 ms</td><td>125.0000</td><td>282.45 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>280000</td><td>66.76 ms</td><td>0.225 ms</td><td>0.450 ms</td><td>66.76 ms</td><td>125.0000</td><td>283.08 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>316000</td><td>62.38 ms</td><td>6.599 ms</td><td>13.331 ms</td><td>74.10 ms</td><td>-</td><td>282.66 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>316000</td><td>74.44 ms</td><td>0.162 ms</td><td>0.324 ms</td><td>74.46 ms</td><td>-</td><td>283.41 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>352000</td><td>42.58 ms</td><td>1.826 ms</td><td>3.293 ms</td><td>42.53 ms</td><td>-</td><td>283.09 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>352000</td><td>83.22 ms</td><td>0.273 ms</td><td>0.545 ms</td><td>83.21 ms</td><td>-</td><td>282.5 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>388000</td><td>45.47 ms</td><td>1.553 ms</td><td>2.954 ms</td><td>45.33 ms</td><td>-</td><td>283.36 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>388000</td><td>91.01 ms</td><td>0.319 ms</td><td>0.645 ms</td><td>90.81 ms</td><td>-</td><td>282.35 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>424000</td><td>47.35 ms</td><td>0.974 ms</td><td>1.945 ms</td><td>47.39 ms</td><td>-</td><td>282.82 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>424000</td><td>99.09 ms</td><td>0.247 ms</td><td>0.481 ms</td><td>99.02 ms</td><td>-</td><td>283.22 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>460000</td><td>50.67 ms</td><td>1.046 ms</td><td>2.113 ms</td><td>50.55 ms</td><td>-</td><td>282.85 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>460000</td><td>107.17 ms</td><td>0.165 ms</td><td>0.318 ms</td><td>107.12 ms</td><td>-</td><td>282.55 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>496000</td><td>116.00 ms</td><td>0.344 ms</td><td>0.686 ms</td><td>115.87 ms</td><td>-</td><td>282.55 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>496000</td><td>53.60 ms</td><td>1.040 ms</td><td>1.848 ms</td><td>53.27 ms</td><td>-</td><td>282.88 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>532000</td><td>124.35 ms</td><td>0.373 ms</td><td>0.719 ms</td><td>124.26 ms</td><td>-</td><td>282.71 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>532000</td><td>55.29 ms</td><td>1.225 ms</td><td>2.331 ms</td><td>55.26 ms</td><td>-</td><td>283.04 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>568000</td><td>132.29 ms</td><td>0.447 ms</td><td>0.871 ms</td><td>131.98 ms</td><td>-</td><td>282.85 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>568000</td><td>58.83 ms</td><td>1.064 ms</td><td>2.100 ms</td><td>58.44 ms</td><td>-</td><td>283.13 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>604000</td><td>141.08 ms</td><td>0.421 ms</td><td>0.811 ms</td><td>141.14 ms</td><td>-</td><td>282.61 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>604000</td><td>61.90 ms</td><td>1.409 ms</td><td>2.846 ms</td><td>61.11 ms</td><td>-</td><td>282.89 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>640000</td><td>147.91 ms</td><td>6.119 ms</td><td>12.079 ms</td><td>149.04 ms</td><td>-</td><td>282.8 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>640000</td><td>148.48 ms</td><td>0.445 ms</td><td>0.847 ms</td><td>148.31 ms</td><td>-</td><td>282.61 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>676000</td><td>69.10 ms</td><td>1.554 ms</td><td>2.994 ms</td><td>69.02 ms</td><td>-</td><td>283.08 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>676000</td><td>157.07 ms</td><td>0.821 ms</td><td>1.620 ms</td><td>156.47 ms</td><td>-</td><td>282.8 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>712000</td><td>166.92 ms</td><td>0.809 ms</td><td>1.596 ms</td><td>166.81 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>712000</td><td>125.11 ms</td><td>23.497 ms</td><td>47.465 ms</td><td>166.21 ms</td><td>-</td><td>283.41 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>748000</td><td>174.59 ms</td><td>0.811 ms</td><td>1.543 ms</td><td>174.42 ms</td><td>-</td><td>283.1 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>748000</td><td>75.66 ms</td><td>1.546 ms</td><td>2.788 ms</td><td>76.15 ms</td><td>-</td><td>282.91 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>784000</td><td>184.65 ms</td><td>1.057 ms</td><td>2.037 ms</td><td>184.66 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>784000</td><td>79.12 ms</td><td>1.492 ms</td><td>3.014 ms</td><td>79.60 ms</td><td>-</td><td>282.91 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>820000</td><td>191.43 ms</td><td>5.736 ms</td><td>11.455 ms</td><td>192.37 ms</td><td>-</td><td>283.35 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>820000</td><td>193.17 ms</td><td>1.205 ms</td><td>2.435 ms</td><td>192.94 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>856000</td><td>83.58 ms</td><td>1.888 ms</td><td>3.257 ms</td><td>83.32 ms</td><td>-</td><td>282.97 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>856000</td><td>201.45 ms</td><td>0.924 ms</td><td>1.758 ms</td><td>201.44 ms</td><td>-</td><td>283.16 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>892000</td><td>90.07 ms</td><td>0.886 ms</td><td>1.789 ms</td><td>90.13 ms</td><td>-</td><td>282.82 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>892000</td><td>89.05 ms</td><td>1.339 ms</td><td>2.674 ms</td><td>88.66 ms</td><td>-</td><td>282.69 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>928000</td><td>93.23 ms</td><td>0.904 ms</td><td>1.784 ms</td><td>93.41 ms</td><td>-</td><td>282.97 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>928000</td><td>95.49 ms</td><td>0.929 ms</td><td>1.835 ms</td><td>95.34 ms</td><td>-</td><td>283.22 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>964000</td><td>95.22 ms</td><td>1.181 ms</td><td>2.359 ms</td><td>95.22 ms</td><td>-</td><td>282.97 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>964000</td><td>97.15 ms</td><td>1.179 ms</td><td>2.271 ms</td><td>97.11 ms</td><td>-</td><td>282.73 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>None</td><td>1000000</td><td>102.17 ms</td><td>1.305 ms</td><td>2.636 ms</td><td>101.87 ms</td><td>-</td><td>282.81 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>None</td><td>1000000</td><td>98.17 ms</td><td>1.264 ms</td><td>2.523 ms</td><td>98.37 ms</td><td>-</td><td>283.11 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>100000</td><td>25.18 ms</td><td>0.170 ms</td><td>0.344 ms</td><td>25.14 ms</td><td>125.0000</td><td>283.15 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>100000</td><td>25.05 ms</td><td>0.108 ms</td><td>0.208 ms</td><td>25.05 ms</td><td>125.0000</td><td>282.95 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>136000</td><td>33.17 ms</td><td>0.125 ms</td><td>0.247 ms</td><td>33.21 ms</td><td>125.0000</td><td>282.6 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>136000</td><td>33.08 ms</td><td>0.113 ms</td><td>0.204 ms</td><td>33.05 ms</td><td>133.3333</td><td>282.37 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>172000</td><td>41.77 ms</td><td>0.177 ms</td><td>0.357 ms</td><td>41.69 ms</td><td>83.3333</td><td>282.39 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>172000</td><td>42.05 ms</td><td>0.194 ms</td><td>0.393 ms</td><td>42.01 ms</td><td>83.3333</td><td>282.39 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>208000</td><td>43.28 ms</td><td>3.318 ms</td><td>6.702 ms</td><td>44.31 ms</td><td>90.9091</td><td>282.59 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>208000</td><td>49.66 ms</td><td>0.148 ms</td><td>0.291 ms</td><td>49.67 ms</td><td>100.0000</td><td>282.41 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>244000</td><td>41.81 ms</td><td>1.526 ms</td><td>2.829 ms</td><td>42.75 ms</td><td>111.1111</td><td>282.74 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>244000</td><td>58.05 ms</td><td>0.128 ms</td><td>0.252 ms</td><td>58.05 ms</td><td>111.1111</td><td>282.43 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>280000</td><td>45.45 ms</td><td>1.351 ms</td><td>2.729 ms</td><td>45.54 ms</td><td>125.0000</td><td>282.63 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>280000</td><td>64.73 ms</td><td>2.549 ms</td><td>5.149 ms</td><td>66.19 ms</td><td>125.0000</td><td>282.61 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>316000</td><td>74.33 ms</td><td>0.117 ms</td><td>0.231 ms</td><td>74.32 ms</td><td>-</td><td>282.71 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>316000</td><td>63.15 ms</td><td>6.153 ms</td><td>12.429 ms</td><td>74.16 ms</td><td>-</td><td>282.79 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>352000</td><td>82.99 ms</td><td>0.239 ms</td><td>0.483 ms</td><td>82.93 ms</td><td>-</td><td>282.5 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>352000</td><td>54.87 ms</td><td>8.529 ms</td><td>17.229 ms</td><td>45.86 ms</td><td>-</td><td>283.25 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>388000</td><td>90.88 ms</td><td>0.277 ms</td><td>0.548 ms</td><td>90.80 ms</td><td>-</td><td>282.91 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>388000</td><td>45.81 ms</td><td>1.349 ms</td><td>2.632 ms</td><td>45.87 ms</td><td>-</td><td>283.28 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>424000</td><td>98.99 ms</td><td>0.141 ms</td><td>0.271 ms</td><td>98.96 ms</td><td>-</td><td>282.5 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>424000</td><td>47.14 ms</td><td>0.691 ms</td><td>1.397 ms</td><td>47.26 ms</td><td>90.9091</td><td>282.66 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>460000</td><td>77.34 ms</td><td>14.483 ms</td><td>29.256 ms</td><td>52.50 ms</td><td>-</td><td>282.73 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>460000</td><td>107.08 ms</td><td>0.175 ms</td><td>0.338 ms</td><td>107.02 ms</td><td>-</td><td>282.55 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>496000</td><td>54.74 ms</td><td>1.013 ms</td><td>1.927 ms</td><td>54.64 ms</td><td>-</td><td>283.33 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>496000</td><td>115.87 ms</td><td>0.364 ms</td><td>0.727 ms</td><td>115.65 ms</td><td>-</td><td>282.55 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>532000</td><td>57.39 ms</td><td>1.358 ms</td><td>2.712 ms</td><td>57.26 ms</td><td>-</td><td>283.08 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>532000</td><td>124.52 ms</td><td>0.338 ms</td><td>0.674 ms</td><td>124.46 ms</td><td>-</td><td>282.61 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>568000</td><td>60.34 ms</td><td>1.321 ms</td><td>2.607 ms</td><td>59.78 ms</td><td>-</td><td>282.8 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>568000</td><td>132.86 ms</td><td>0.834 ms</td><td>1.666 ms</td><td>132.02 ms</td><td>-</td><td>282.75 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>604000</td><td>64.01 ms</td><td>1.519 ms</td><td>3.068 ms</td><td>63.75 ms</td><td>-</td><td>282.89 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>604000</td><td>140.72 ms</td><td>0.809 ms</td><td>1.616 ms</td><td>140.28 ms</td><td>-</td><td>282.8 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>640000</td><td>148.25 ms</td><td>0.306 ms</td><td>0.591 ms</td><td>148.19 ms</td><td>-</td><td>282.61 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>640000</td><td>67.03 ms</td><td>1.831 ms</td><td>3.528 ms</td><td>66.65 ms</td><td>-</td><td>283.04 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>676000</td><td>151.57 ms</td><td>11.258 ms</td><td>22.483 ms</td><td>158.19 ms</td><td>-</td><td>282.89 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>676000</td><td>158.58 ms</td><td>1.016 ms</td><td>2.052 ms</td><td>158.16 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>712000</td><td>117.92 ms</td><td>24.282 ms</td><td>49.052 ms</td><td>76.79 ms</td><td>-</td><td>283.1 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>712000</td><td>166.74 ms</td><td>0.772 ms</td><td>1.524 ms</td><td>166.50 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>748000</td><td>72.77 ms</td><td>1.163 ms</td><td>2.212 ms</td><td>72.67 ms</td><td>-</td><td>283.47 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>748000</td><td>174.79 ms</td><td>0.841 ms</td><td>1.640 ms</td><td>174.80 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>784000</td><td>78.72 ms</td><td>1.367 ms</td><td>2.761 ms</td><td>79.16 ms</td><td>-</td><td>283.54 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>784000</td><td>183.92 ms</td><td>1.156 ms</td><td>2.309 ms</td><td>183.66 ms</td><td>-</td><td>283.1 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>820000</td><td>192.07 ms</td><td>1.109 ms</td><td>2.214 ms</td><td>192.23 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>820000</td><td>79.87 ms</td><td>1.766 ms</td><td>3.093 ms</td><td>79.56 ms</td><td>-</td><td>283.41 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>856000</td><td>201.02 ms</td><td>1.177 ms</td><td>2.351 ms</td><td>200.72 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>856000</td><td>200.28 ms</td><td>0.760 ms</td><td>1.481 ms</td><td>200.09 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>892000</td><td>88.27 ms</td><td>1.303 ms</td><td>2.447 ms</td><td>88.64 ms</td><td>-</td><td>283.6 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>892000</td><td>195.85 ms</td><td>19.798 ms</td><td>38.614 ms</td><td>208.83 ms</td><td>-</td><td>282.91 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>928000</td><td>217.51 ms</td><td>0.830 ms</td><td>1.658 ms</td><td>217.46 ms</td><td>-</td><td>283.41 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>928000</td><td>91.08 ms</td><td>1.705 ms</td><td>3.444 ms</td><td>91.37 ms</td><td>-</td><td>282.91 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>964000</td><td>186.99 ms</td><td>30.041 ms</td><td>60.685 ms</td><td>226.36 ms</td><td>-</td><td>282.97 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>964000</td><td>227.26 ms</td><td>1.464 ms</td><td>2.958 ms</td><td>226.37 ms</td><td>-</td><td>282.72 KB</td>
+</tr><tr><td>Select_HashAggregate</td><td>Res_BillDate_Cst</td><td>1000000</td><td>235.12 ms</td><td>0.878 ms</td><td>1.775 ms</td><td>235.64 ms</td><td>-</td><td>283.41 KB</td>
+</tr><tr><td>Select_GroupAggregate</td><td>Res_BillDate_Cst</td><td>1000000</td><td>97.09 ms</td><td>1.352 ms</td><td>2.731 ms</td><td>96.87 ms</td><td>-</td><td>283.04 KB</td>
+</tr></tbody></table>
+</body>
+</html>

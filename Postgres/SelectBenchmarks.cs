@@ -3,137 +3,110 @@ using Npgsql;
 
 namespace Benchmark;
 
+[CategoriesColumn]
+[MemoryDiagnoser]
+[SimpleJob(iterationCount: Iterations)]
 public class SelectBenchmarks : BenchmarkBase
 {
-    [Params(100_000)]
-    public override int ResourceCount { get; set; }
+    [ParamsSource(nameof(GetBatchSize))]
+    public override int BatchSize { get; set; }
 
-    [GlobalSetup(Target = nameof(SelectGroupByNoIndex))]
-    public void SetupQueryNoIndex()
+    [Params(
+        IndexCreationStrategy.None,
+        // IndexCreationStrategy.Res,
+        // IndexCreationStrategy.Res_BillDate,
+        IndexCreationStrategy.Res_BillDate_Cst
+        // IndexCreationStrategy.Res_BillDate_Inc_Cst
+        )]
+    public IndexCreationStrategy IndexCreation { get; set; }
+
+    private string IndexCreationSql => IndexCreation switch
     {
+        IndexCreationStrategy.Res => "create index idx_billing_data on billing_data(resource);",
+        IndexCreationStrategy.Res_BillDate => "create index idx_billing_data on billing_data(resource, billing_date);",
+        IndexCreationStrategy.Res_BillDate_Cst => "create index idx_billing_data on billing_data(resource, billing_date, cost);",
+        IndexCreationStrategy.Res_BillDate_Inc_Cst => "create index idx_billing_data on billing_data(resource, billing_date) include (cost);",
+        _ => throw new NotImplementedException()
+    };
+
+    [GlobalSetup(Target = nameof(Select_HashAggregate))]
+    public void Setup_HashAggregate()
+    {
+        DataRows = GenerateDataRows();
+
         using var conn = new NpgsqlConnection(ConnectionString);
         conn.Open();
 
-        ExecuteCommand(conn,
-        """
-        drop table if exists billing_data_no_index;
+        RecreateTable(conn);
 
-        create table billing_data_no_index (
-            resource_id     int not null,
-            billing_date    date not null,
-            cost            decimal not null);
-        """);
+        ExecuteCommand(conn, "SET enable_hashagg = on;");
 
-        BulkCopy(conn, "billing_data_no_index", OneYearData);
+        BulkCopy(conn);
+
+        if (IndexCreation != IndexCreationStrategy.None)
+        {
+            ExecuteCommand(conn, IndexCreationSql);
+        }
     }
 
-    [GlobalSetup(Target = nameof(SelectGroupByWithCompositeIndex))]
-    public void SetupQueryWithCompositeIndex()
+    [GlobalSetup(Target = nameof(Select_GroupAggregate))]
+    public void Setup_GroupAggregate()
     {
+        DataRows = GenerateDataRows();
+
         using var conn = new NpgsqlConnection(ConnectionString);
         conn.Open();
 
-        ExecuteCommand(conn,
-        """
-        drop table if exists billing_data;
-        drop index if exists idx_billing_data_partitioned_date;
+        RecreateTable(conn);
 
-        create table billing_data (
-            resource_id     int not null,
-            billing_date    date not null,
-            cost            decimal not null);
+        ExecuteCommand(conn, "SET enable_hashagg = off;");
 
-        create index idx_billing_data_partitioned_date
-        on billing_data(billing_date, resource_id);
-        """);
+        BulkCopy(conn);
 
-        BulkCopy(conn, "billing_data", OneYearData);
-    }
-
-    [GlobalSetup(Target = nameof(SelectGroupByWithIndexInclude))]
-    public void SetupQueryWithIndexInclude()
-    {
-        using var conn = new NpgsqlConnection(ConnectionString);
-        conn.Open();
-        
-        ExecuteCommand(conn,
-        """
-        drop table if exists billing_data;
-        drop index if exists idx_billing_data_partitioned_date;
-
-        create table billing_data (
-            resource_id     int not null,
-            billing_date    date not null,
-            cost            decimal not null);
-
-        create index idx_billing_data_partitioned_date
-        on billing_data(billing_date) include (resource_id, cost);
-        """);
-
-        BulkCopy(conn, "billing_data", OneYearData);
+        if (IndexCreation != IndexCreationStrategy.None)
+        {
+            ExecuteCommand(conn, IndexCreationSql);
+        }
     }
 
     [Benchmark]
-    public (DateTime, int, decimal) SelectGroupByNoIndex()
+    public int Select_HashAggregate()
     {
-        var sql =
-        """
-        select billing_date, resource_id, sum(cost) 
-        from billing_data_no_index 
-        group by billing_date, resource_id;
-        """;
-
         using var conn = new NpgsqlConnection(ConnectionString);
         conn.Open();
 
-        return Select(conn, sql);
-    }
-
-    [Benchmark(Baseline = true)]
-    public (DateTime, int, decimal) SelectGroupByWithCompositeIndex()
-    {
         var sql =
         """
-        select billing_date, resource_id, sum(cost) 
-        from billing_data 
-        group by billing_date, resource_id;
+        select resource, billing_date, sum(cost)
+        from billing_data
+        group by resource, billing_date
         """;
-
-        using var conn = new NpgsqlConnection(ConnectionString);
-        conn.Open();
 
         return Select(conn, sql);
     }
 
     [Benchmark]
-    public (DateTime, int, decimal) SelectGroupByWithCompositeIndexDiffOrder()
+    public int Select_GroupAggregate()
     {
-        var sql =
-        """
-        select billing_date, resource_id, sum(cost) 
-        from billing_data 
-        group by resource_id, billing_date;
-        """;
-
         using var conn = new NpgsqlConnection(ConnectionString);
         conn.Open();
+
+        var sql =
+        """
+        select resource, billing_date, sum(cost)
+        from billing_data
+        group by resource, billing_date
+        """;
 
         return Select(conn, sql);
     }
 
-    [Benchmark]
-    public (DateTime, int, decimal) SelectGroupByWithIndexInclude()
+    public enum IndexCreationStrategy
     {
-        var sql =
-        """
-        select billing_date, resource_id, sum(cost) 
-        from billing_data 
-        group by billing_date, resource_id;
-        """;
-
-        using var conn = new NpgsqlConnection(ConnectionString);
-        conn.Open();
-
-        return Select(conn, sql);
+        None,
+        Res,
+        Res_BillDate,
+        Res_BillDate_Cst,
+        Res_BillDate_Inc_Cst
     }
 }
