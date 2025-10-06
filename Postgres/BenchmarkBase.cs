@@ -1,4 +1,5 @@
 using Npgsql;
+using NpgsqlTypes;
 
 namespace Benchmark;
 
@@ -16,8 +17,8 @@ public abstract class BenchmarkBase
 
     public static IEnumerable<int> GetBatchSize()
     {
-        // for (int i = 10_000; i <= 100_000; i += 3_600) yield return i;
-        for (int i = 100_000; i <= 1_000_000; i += 36_000) yield return i;
+        for (int i = 10_000; i < 100_000; i += 10_000) yield return i;
+        for (int i = 100_000; i <= 1_000_000; i += 100_000) yield return i;
     }
 
     protected DataRow[] GenerateDataRows()
@@ -67,7 +68,8 @@ public abstract class BenchmarkBase
 
     protected ulong BulkCopy(NpgsqlConnection conn)
     {
-        var sql = $"""
+        var sql =
+        """
         copy billing_data
         (resource, billing_date, cost)
         from stdin (format binary)
@@ -78,9 +80,9 @@ public abstract class BenchmarkBase
         foreach (var d in DataRows)
         {
             importer.StartRow();
-            importer.Write(d.Resource, NpgsqlTypes.NpgsqlDbType.Text);
-            importer.Write(d.BillingDate, NpgsqlTypes.NpgsqlDbType.Date);
-            importer.Write(d.Cost, NpgsqlTypes.NpgsqlDbType.Integer);
+            importer.Write(d.Resource, NpgsqlDbType.Text);
+            importer.Write(d.BillingDate, NpgsqlDbType.Date);
+            importer.Write(d.Cost, NpgsqlDbType.Integer);
         }
 
         return importer.Complete();
@@ -93,7 +95,7 @@ public abstract class BenchmarkBase
         return command.ExecuteNonQuery();
     }
 
-    protected static void RecreateTable(NpgsqlConnection conn)
+    public static void RecreateTable(NpgsqlConnection conn)
     {
         ExecuteCommand(conn,
         """
