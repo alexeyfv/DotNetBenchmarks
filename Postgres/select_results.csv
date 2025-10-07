@@ -1,4 +1,4 @@
-Iteration,BatchSize,CreateTable,CreateTableTime,BulkCopyTime,SelectTime,ExecutionPlan,
+Iteration,CreateTableTime,BulkCopyTime,SelectTime,CreateTable,BatchSize,ExecutionPlan
          1,             17,          53,        20,    regular,    10000,"HashAggregate Seq Scan"
          2,              2,          22,         5,    regular,    10000,"HashAggregate Seq Scan"
          3,              1,          21,         8,    regular,    10000,"HashAggregate Seq Scan"

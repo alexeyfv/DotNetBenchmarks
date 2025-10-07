@@ -34,18 +34,17 @@ public static class SelectWithoutIndexBenchmark2
         var iteration = 1;
         sb.Append("Iteration,");
 
-        // Parameters
-        sb.Append("BatchSize,");
-        sb.Append("CreateTable,");
-
         // Measurements
         sb.Append("CreateTableTime,");
         sb.Append("BulkCopyTime,");
         sb.Append("SelectTime,");
 
+        // Parameters
+        sb.Append("CreateTable,");
+        sb.Append("BatchSize,");
 
         // Execution plan
-        sb.Append("ExecutionPlan,");
+        sb.Append("ExecutionPlan");
         sb.AppendLine();
 
         foreach (var size in GetSize())
