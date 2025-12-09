@@ -6,12 +6,12 @@ using NpgsqlTypes;
 
 namespace Benchmark;
 
-public static class SelectWithoutIndexBenchmark2
+public static class HashAggregateInfluenceBenchmark
 {
     private const string ConnectionString = "Host=localhost;Port=5432;Database=postgres;Username=sa;Password=qweQWE123!";
     private const int WorkloadIterations = 50;
 
-    private static IEnumerable<int> GetSize()
+    private static IEnumerable<int> GetBatchSize()
     {
         for (int i = 10_000; i < 100_000; i += 3_600) yield return i;
         for (int i = 100_000; i <= 1_000_000; i += 36_000) yield return i;
@@ -19,11 +19,10 @@ public static class SelectWithoutIndexBenchmark2
 
     public static void Run()
     {
-        Param[] tableParams =
+        Param[] hashagg =
         [
-            new Param("regular", "create table"),
-            new Param("unlogged", "create unlogged table"),
-            new Param("temp", "create temp table"),
+            new Param("on", "on"),
+            new Param("off", "off"),
         ];
 
         var rnd = new Random(987654321);
@@ -33,22 +32,13 @@ public static class SelectWithoutIndexBenchmark2
 
         // Iteration
         var iteration = 1;
-        sb.Append("Iteration,");
 
-        // Measurements
-        sb.Append("CreateTableTime,");
-        sb.Append("BulkCopyTime,");
-        sb.Append("SelectTime,");
+        // Write CSV header (use same simple approach as in CardinalityInfluenceBenchmark)
+        File.AppendAllText(
+            "hashagg_influence_results.csv",
+            "Iteration,SelectTime,HashAgg,BatchSize,ExecutionPlan\n");
 
-        // Parameters
-        sb.Append("CreateTable,");
-        sb.Append("BatchSize,");
-
-        // Execution plan
-        sb.Append("ExecutionPlan");
-        sb.AppendLine();
-
-        foreach (var size in GetSize())
+        foreach (var size in GetBatchSize())
         {
             var data = new List<DataRow>();
             var date = new DateTime(2025, 9, 1);
@@ -63,56 +53,35 @@ public static class SelectWithoutIndexBenchmark2
                 data.Add(new DataRow(resource, billingDate, cost));
             }
 
-            foreach (var t in tableParams)
+            foreach (var i in hashagg)
             {
-                Console.WriteLine($"Running benchmark: Size={size}, TableType={t.Name}");
+                Console.WriteLine($"Running benchmark: HashAgg={i.Name}, BatchSize={size}...");
 
-                Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                    "CreateTableTime",
-                    "BulkCopyTime",
-                    "SelectTime",
-                    "TotalTime",
-                    "CreateTable",
-                    "BatchSize",
-                    "ExecutionPlan");
+                // Print a simple CSV header to console similar to file header
+                Console.WriteLine("Iteration,SelectTime,HashAgg,BatchSize,ExecutionPlan");
 
-                foreach (var m in Run(data, t, size, sb))
+                foreach (var m in Run(data, i, size))
                 {
-                    // Iteration
-                    sb.AppendFormat(@"{0,10},", iteration++);
+                    // Build CSV line and persist, then print same line to console
+                    var s = sb.Clear()
+                        .AppendFormat(@"{0,9},", iteration++)
+                        .AppendFormat(@"{0,10},", m.SelectTime)
+                        .AppendFormat(@"{0,11},", m.HashAgg)
+                        .AppendFormat(@"{0,9},", m.BatchSize)
+                        .AppendFormat(@"""{0,13}""", m.ExecutionPlan)
+                        .AppendLine()
+                        .ToString();
 
-                    // Measurements
-                    sb.AppendFormat(@"{0,15},", m.CreateTableTime);
-                    sb.AppendFormat(@"{0,12},", m.BulkCopyTime);
-                    sb.AppendFormat(@"{0,10},", m.SelectTime);
-
-                    // Parameters
-                    sb.AppendFormat(@"{0,11},", m.CreateTable);
-                    sb.AppendFormat(@"{0,9},", m.BatchSize);
-
-                    // Execution plan
-                    sb.AppendFormat(@"""{0,13}""", m.ExecutionPlan);
-                    sb.AppendLine();
-
-                    Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                        m.CreateTableTime,
-                        m.BulkCopyTime,
-                        m.SelectTime,
-                        m.TotalTime,
-                        m.CreateTable,
-                        m.BatchSize,
-                        m.ExecutionPlan);
+                    File.AppendAllText("hashagg_influence_results.csv", s);
+                    Console.Write(s);
                 }
 
-                Console.WriteLine($"Completed benchmark: Size={size}, TableType={t.Name}");
+                Console.WriteLine($"Completed benchmark: Size={size}, HashAgg={i.Name}");
             }
         }
-
-        File.WriteAllText("select_results.csv", sb.ToString());
     }
 
-
-    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param createTable, int batchSize, StringBuilder sb)
+    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param hashagg, int batchSize)
     {
         for (var i = 0; i < WorkloadIterations; i++)
         {
@@ -122,33 +91,37 @@ public static class SelectWithoutIndexBenchmark2
             using var tx = conn.BeginTransaction();
 
             // Recreate table
-            var sw = Stopwatch.StartNew();
             ExecuteCommand(conn,
             $"""
-                drop table if exists billing_data;
-                {createTable.Value} billing_data (
-                    resource         text not null,
-                    billing_date     date not null,
-                    cost             int not null);
-                """);
-            var createTableTime = sw.ElapsedMilliseconds;
+            drop table if exists billing_data;
+            drop index if exists idx_billing_data;
+
+            create table billing_data (
+                resource         text not null,
+                billing_date     date not null,
+                cost             int not null);
+            
+            create index idx_billing_data
+            on billing_data (resource, billing_date) 
+            include (cost);
+
+            set enable_hashagg = {hashagg.Value};
+            """);
 
             // Bulk copy
-            sw.Restart();
             BulkCopy(data, conn);
-            var bulkCopy = sw.ElapsedMilliseconds;
 
             // Execute query
-            sw.Restart();
+            var sw = Stopwatch.StartNew();
             var (resource, billingDate, cost, x) = (string.Empty, DateTime.MinValue, 0, 0);
             using (var selectCommand = conn.CreateCommand())
             {
                 selectCommand.CommandText =
                 """
-                    select resource, billing_date, sum(cost)
-                    from billing_data
-                    group by resource, billing_date
-                    """;
+                select resource, billing_date, sum(cost)
+                from billing_data
+                group by resource, billing_date
+                """;
 
                 using var reader = selectCommand.ExecuteReader();
                 while (reader.Read())
@@ -193,12 +166,10 @@ public static class SelectWithoutIndexBenchmark2
             var result = new BenchmarkMeasure
             {
                 // Parameters
-                CreateTable = createTable.Name,
+                HashAgg = hashagg.Name,
                 BatchSize = batchSize,
 
                 // Measurements
-                CreateTableTime = createTableTime,
-                BulkCopyTime = bulkCopy,
                 SelectTime = select,
 
                 // Execution plan details
@@ -251,14 +222,10 @@ public static class SelectWithoutIndexBenchmark2
     record BenchmarkMeasure
     {
         // Measurements
-        public required long CreateTableTime { get; init; }
-        public required long BulkCopyTime { get; init; }
         public required long SelectTime { get; init; }
 
-        public long TotalTime => CreateTableTime + BulkCopyTime + SelectTime;
-
         // Parameters
-        public required string CreateTable { get; init; }
+        public required string HashAgg { get; init; }
         public required int BatchSize { get; init; }
 
         // Execution plan details

@@ -15,4 +15,8 @@ using BenchmarkDotNet.Running;
 // BenchmarkSwitcher
 //     .FromAssembly(typeof(Program).Assembly)
 //     .Run(args, config);
-SelectWithoutIndexBenchmark2.Run();
+
+// SelectWithoutIndexBenchmark2.Run();
+// IndexInfluenceBenchmark.Run();
+// CardinalityInfluenceBenchmark.Run();
+HashAggregateInfluenceBenchmark.Run();

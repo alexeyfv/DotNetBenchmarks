@@ -6,7 +6,7 @@ using NpgsqlTypes;
 
 namespace Benchmark;
 
-public static class SelectWithoutIndexBenchmark2
+public static class ParallelismInfluenceBenchmark
 {
     private const string ConnectionString = "Host=localhost;Port=5432;Database=postgres;Username=sa;Password=qweQWE123!";
     private const int WorkloadIterations = 50;
@@ -19,11 +19,20 @@ public static class SelectWithoutIndexBenchmark2
 
     public static void Run()
     {
-        Param[] tableParams =
+        Param[] parallelism =
         [
-            new Param("regular", "create table"),
-            new Param("unlogged", "create unlogged table"),
-            new Param("temp", "create temp table"),
+            new Param("default",
+            """
+            set min_parallel_table_scan_size = 1024;
+            set parallel_setup_cost = 1000;
+            set parallel_tuple_cost = 0.1;
+            """),
+            new Param("forced",
+            """
+            set min_parallel_table_scan_size = 0;
+            set parallel_setup_cost = 0;
+            set parallel_tuple_cost = 0;
+            """),
         ];
 
         var rnd = new Random(987654321);
@@ -36,12 +45,10 @@ public static class SelectWithoutIndexBenchmark2
         sb.Append("Iteration,");
 
         // Measurements
-        sb.Append("CreateTableTime,");
-        sb.Append("BulkCopyTime,");
         sb.Append("SelectTime,");
 
         // Parameters
-        sb.Append("CreateTable,");
+        sb.Append("Parallelism,");
         sb.Append("BatchSize,");
 
         // Execution plan
@@ -63,56 +70,48 @@ public static class SelectWithoutIndexBenchmark2
                 data.Add(new DataRow(resource, billingDate, cost));
             }
 
-            foreach (var t in tableParams)
+            foreach (var p in parallelism)
             {
-                Console.WriteLine($"Running benchmark: Size={size}, TableType={t.Name}");
-
-                Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                    "CreateTableTime",
-                    "BulkCopyTime",
+                Console.WriteLine($"Running benchmark: Size={size}, Parallelism={p.Name}");
+                
+                Console.WriteLine("{0, -10}, {1, -11}, {2, -9}, {3, -13}",
                     "SelectTime",
-                    "TotalTime",
-                    "CreateTable",
+                    "Parallelism",
                     "BatchSize",
                     "ExecutionPlan");
 
-                foreach (var m in Run(data, t, size, sb))
+                foreach (var m in Run(data, p, size, sb))
                 {
                     // Iteration
-                    sb.AppendFormat(@"{0,10},", iteration++);
+                    sb.AppendFormat(@"{0,9},", iteration++);
 
                     // Measurements
-                    sb.AppendFormat(@"{0,15},", m.CreateTableTime);
-                    sb.AppendFormat(@"{0,12},", m.BulkCopyTime);
-                    sb.AppendFormat(@"{0,10},", m.SelectTime);
+                    sb.AppendFormat(@"{0,9},", m.SelectTime);
 
                     // Parameters
-                    sb.AppendFormat(@"{0,11},", m.CreateTable);
+                    sb.AppendFormat(@"{0,11},", m.Parallelism);
                     sb.AppendFormat(@"{0,9},", m.BatchSize);
 
                     // Execution plan
                     sb.AppendFormat(@"""{0,13}""", m.ExecutionPlan);
                     sb.AppendLine();
 
-                    Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                        m.CreateTableTime,
-                        m.BulkCopyTime,
+                    Console.WriteLine("{0, -10}, {1, -11}, {2, -9}, {3, -13}",
                         m.SelectTime,
-                        m.TotalTime,
-                        m.CreateTable,
+                        m.Parallelism,
                         m.BatchSize,
                         m.ExecutionPlan);
                 }
-
-                Console.WriteLine($"Completed benchmark: Size={size}, TableType={t.Name}");
+                
+                Console.WriteLine($"Completed benchmark: Size={size}, Parallelism={p.Name}");
             }
         }
 
-        File.WriteAllText("select_results.csv", sb.ToString());
+        File.WriteAllText("parallelism_influence_results.csv", sb.ToString());
     }
 
 
-    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param createTable, int batchSize, StringBuilder sb)
+    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param parallelism, int batchSize, StringBuilder sb)
     {
         for (var i = 0; i < WorkloadIterations; i++)
         {
@@ -122,24 +121,23 @@ public static class SelectWithoutIndexBenchmark2
             using var tx = conn.BeginTransaction();
 
             // Recreate table
-            var sw = Stopwatch.StartNew();
             ExecuteCommand(conn,
             $"""
-                drop table if exists billing_data;
-                {createTable.Value} billing_data (
-                    resource         text not null,
-                    billing_date     date not null,
-                    cost             int not null);
-                """);
-            var createTableTime = sw.ElapsedMilliseconds;
+            drop table if exists billing_data;
+
+            create table billing_data (
+                resource         text not null,
+                billing_date     date not null,
+                cost             int not null);
+            
+            {parallelism.Value} -- Set parallelism parameters
+            """);
 
             // Bulk copy
-            sw.Restart();
             BulkCopy(data, conn);
-            var bulkCopy = sw.ElapsedMilliseconds;
 
             // Execute query
-            sw.Restart();
+            var sw = Stopwatch.StartNew();
             var (resource, billingDate, cost, x) = (string.Empty, DateTime.MinValue, 0, 0);
             using (var selectCommand = conn.CreateCommand())
             {
@@ -193,12 +191,10 @@ public static class SelectWithoutIndexBenchmark2
             var result = new BenchmarkMeasure
             {
                 // Parameters
-                CreateTable = createTable.Name,
+                Parallelism = parallelism.Name,
                 BatchSize = batchSize,
 
                 // Measurements
-                CreateTableTime = createTableTime,
-                BulkCopyTime = bulkCopy,
                 SelectTime = select,
 
                 // Execution plan details
@@ -251,14 +247,10 @@ public static class SelectWithoutIndexBenchmark2
     record BenchmarkMeasure
     {
         // Measurements
-        public required long CreateTableTime { get; init; }
-        public required long BulkCopyTime { get; init; }
         public required long SelectTime { get; init; }
 
-        public long TotalTime => CreateTableTime + BulkCopyTime + SelectTime;
-
         // Parameters
-        public required string CreateTable { get; init; }
+        public required string Parallelism { get; init; }
         public required int BatchSize { get; init; }
 
         // Execution plan details

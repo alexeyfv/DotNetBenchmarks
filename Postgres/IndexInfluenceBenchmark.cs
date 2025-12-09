@@ -6,12 +6,12 @@ using NpgsqlTypes;
 
 namespace Benchmark;
 
-public static class SelectWithoutIndexBenchmark2
+public static class IndexInfluenceBenchmark
 {
     private const string ConnectionString = "Host=localhost;Port=5432;Database=postgres;Username=sa;Password=qweQWE123!";
     private const int WorkloadIterations = 50;
 
-    private static IEnumerable<int> GetSize()
+    private static IEnumerable<int> GetBatchSize()
     {
         for (int i = 10_000; i < 100_000; i += 3_600) yield return i;
         for (int i = 100_000; i <= 1_000_000; i += 36_000) yield return i;
@@ -19,11 +19,20 @@ public static class SelectWithoutIndexBenchmark2
 
     public static void Run()
     {
-        Param[] tableParams =
+        Param[] index =
         [
-            new Param("regular", "create table"),
-            new Param("unlogged", "create unlogged table"),
-            new Param("temp", "create temp table"),
+            new Param("no_index", ""),
+            new Param("resource_billing-date",
+            """
+            create index idx_billing_data
+            on billing_data (resource, billing_date);
+            """),
+            new Param("resource_billing-date_cost",
+            """
+            create index idx_billing_data
+            on billing_data (resource, billing_date) 
+            include (cost);
+            """),
         ];
 
         var rnd = new Random(987654321);
@@ -36,19 +45,20 @@ public static class SelectWithoutIndexBenchmark2
         sb.Append("Iteration,");
 
         // Measurements
-        sb.Append("CreateTableTime,");
-        sb.Append("BulkCopyTime,");
         sb.Append("SelectTime,");
 
         // Parameters
-        sb.Append("CreateTable,");
+        sb.Append("Index,");
         sb.Append("BatchSize,");
 
         // Execution plan
         sb.Append("ExecutionPlan");
         sb.AppendLine();
 
-        foreach (var size in GetSize())
+        // Write header to file so the CSV exists immediately
+        File.AppendAllText("index_influence_results.csv", sb.ToString());
+
+        foreach (var size in GetBatchSize())
         {
             var data = new List<DataRow>();
             var date = new DateTime(2025, 9, 1);
@@ -63,56 +73,51 @@ public static class SelectWithoutIndexBenchmark2
                 data.Add(new DataRow(resource, billingDate, cost));
             }
 
-            foreach (var t in tableParams)
+            foreach (var i in index)
             {
-                Console.WriteLine($"Running benchmark: Size={size}, TableType={t.Name}");
+                Console.WriteLine($"Running benchmark: Size={size}, Index={i.Name}");
 
-                Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                    "CreateTableTime",
-                    "BulkCopyTime",
+                Console.WriteLine("{0, -10}, {1, -11}, {2, -9}, {3, -13}",
                     "SelectTime",
-                    "TotalTime",
-                    "CreateTable",
+                    "Index",
                     "BatchSize",
                     "ExecutionPlan");
 
-                foreach (var m in Run(data, t, size, sb))
+                foreach (var m in Run(data, i, size))
                 {
+                    sb.Clear();
+
                     // Iteration
-                    sb.AppendFormat(@"{0,10},", iteration++);
+                    sb.AppendFormat(@"{0,9},", iteration++);
 
                     // Measurements
-                    sb.AppendFormat(@"{0,15},", m.CreateTableTime);
-                    sb.AppendFormat(@"{0,12},", m.BulkCopyTime);
-                    sb.AppendFormat(@"{0,10},", m.SelectTime);
+                    sb.AppendFormat(@"{0,9},", m.SelectTime);
 
                     // Parameters
-                    sb.AppendFormat(@"{0,11},", m.CreateTable);
+                    sb.AppendFormat(@"{0,11},", m.Index);
                     sb.AppendFormat(@"{0,9},", m.BatchSize);
 
                     // Execution plan
                     sb.AppendFormat(@"""{0,13}""", m.ExecutionPlan);
                     sb.AppendLine();
 
-                    Console.WriteLine("{0, -15}, {1, -15}, {2, -15}, {3, -15}, {4, -15}, {5, -15}, {6, -15}",
-                        m.CreateTableTime,
-                        m.BulkCopyTime,
+                    // Persist the CSV after each iteration
+                    File.AppendAllText("index_influence_results.csv", sb.ToString());
+
+                    Console.WriteLine("{0, -10}, {1, -11}, {2, -9}, {3, -13}",
                         m.SelectTime,
-                        m.TotalTime,
-                        m.CreateTable,
+                        m.Index,
                         m.BatchSize,
                         m.ExecutionPlan);
                 }
 
-                Console.WriteLine($"Completed benchmark: Size={size}, TableType={t.Name}");
+                Console.WriteLine($"Completed benchmark: Size={size}, Index={i.Name}");
             }
         }
-
-        File.WriteAllText("select_results.csv", sb.ToString());
     }
 
 
-    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param createTable, int batchSize, StringBuilder sb)
+    static IEnumerable<BenchmarkMeasure> Run(List<DataRow> data, Param index, int batchSize)
     {
         for (var i = 0; i < WorkloadIterations; i++)
         {
@@ -122,24 +127,24 @@ public static class SelectWithoutIndexBenchmark2
             using var tx = conn.BeginTransaction();
 
             // Recreate table
-            var sw = Stopwatch.StartNew();
             ExecuteCommand(conn,
             $"""
-                drop table if exists billing_data;
-                {createTable.Value} billing_data (
-                    resource         text not null,
-                    billing_date     date not null,
-                    cost             int not null);
-                """);
-            var createTableTime = sw.ElapsedMilliseconds;
+            drop table if exists billing_data;
+            drop index if exists idx_billing_data;
+
+            create table billing_data (
+                resource         text not null,
+                billing_date     date not null,
+                cost             int not null);
+            
+            {index.Value} -- create index
+            """);
 
             // Bulk copy
-            sw.Restart();
             BulkCopy(data, conn);
-            var bulkCopy = sw.ElapsedMilliseconds;
 
             // Execute query
-            sw.Restart();
+            var sw = Stopwatch.StartNew();
             var (resource, billingDate, cost, x) = (string.Empty, DateTime.MinValue, 0, 0);
             using (var selectCommand = conn.CreateCommand())
             {
@@ -193,12 +198,10 @@ public static class SelectWithoutIndexBenchmark2
             var result = new BenchmarkMeasure
             {
                 // Parameters
-                CreateTable = createTable.Name,
+                Index = index.Name,
                 BatchSize = batchSize,
 
                 // Measurements
-                CreateTableTime = createTableTime,
-                BulkCopyTime = bulkCopy,
                 SelectTime = select,
 
                 // Execution plan details
@@ -251,14 +254,10 @@ public static class SelectWithoutIndexBenchmark2
     record BenchmarkMeasure
     {
         // Measurements
-        public required long CreateTableTime { get; init; }
-        public required long BulkCopyTime { get; init; }
         public required long SelectTime { get; init; }
 
-        public long TotalTime => CreateTableTime + BulkCopyTime + SelectTime;
-
         // Parameters
-        public required string CreateTable { get; init; }
+        public required string Index { get; init; }
         public required int BatchSize { get; init; }
 
         // Execution plan details
