@@ -57,4 +57,5 @@
     <Project Path="Substring/Substring.csproj" />
   </Folder>
   <Project Path="CodeAnalysis/CodeAnalysis.csproj" />
+  <Project Path="CacheStampede/CacheStampede.csproj" />
 </Solution>

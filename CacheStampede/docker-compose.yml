@@ -1,0 +1,8 @@
+services:
+  hybrid-cache-postgres:
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=sa
+      - POSTGRES_PASSWORD=qweQWE123!!
+    ports:
+      - 5432:5432
