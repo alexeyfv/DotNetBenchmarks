@@ -37,10 +37,9 @@ public class Benchmark
 
     public static IEnumerable<int> ConcurrentRequestsSource() =>
         Enumerable
-            .Range(1, Environment.ProcessorCount * 2)
-            .Where(x => x == 1 || x % 2 == 0); // Even numbers up to 2x processor count
+            .Range(1, Environment.ProcessorCount * 2);
 
-    [Params(OperationType.CPUBound)]
+    [Params(OperationType.CPUBound, OperationType.IOBound)]
     public OperationType Operation { get; set; }
 
 
@@ -154,7 +153,7 @@ public class Benchmark
     {
         // Simulate CPU-bound operation
         var result = 0;
-        for (int i = 0; i < 500_000_000; i++)
+        for (int i = 0; i < 200_000_000; i++)
         {
             result += i % 7;
         }
