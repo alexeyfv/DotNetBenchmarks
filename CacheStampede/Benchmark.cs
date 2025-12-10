@@ -12,153 +12,275 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Benchmark;
 
-public enum OperationType
-{
-    IOBound,
-    CPUBound
-}
-
-[CategoriesColumn]
 [MemoryDiagnoser]
-[SimpleJob(iterationCount: 20)]
-public class Benchmark
+[SimpleJob(iterationCount: 25)]
+public class HybridCacheBenchmark
 {
+    public string BenchmarkName = string.Empty;
+    public int OpCount = 0;
+
+    private HybridCache HybridCache_SingleReplica { get; set; } = null!;
+    private HybridCache HybridCache_L1Only { get; set; } = null!;
+    private HybridCache HybridCache_ReplicaA { get; set; } = null!;
+    private HybridCache HybridCache_ReplicaB { get; set; } = null!;
+    private IMemoryCache MemoryCache = null!;
+    private ConcurrentDictionary<string, int> ConcurrentDictionary = [];
     private const string CacheKey = "test-key";
 
-    private static int OperationCounter;
-    private string _benchmarkName = string.Empty;
-
-    private HybridCache _hybridCache = null!;
-    private IMemoryCache _memoryCache = null!;
-    private readonly ConcurrentDictionary<string, int> _concurrentDict = [];
-
-    [ParamsSource(nameof(ConcurrentRequestsSource))]
+    [ParamsSource(nameof(GetConcurrentRequests))]
     public int ConcurrentRequests { get; set; }
-
-    public static IEnumerable<int> ConcurrentRequestsSource() =>
-        Enumerable
-            .Range(1, Environment.ProcessorCount * 2);
+    
+    public static IEnumerable<int> GetConcurrentRequests() => Enumerable.Range(1, Environment.ProcessorCount * 2);
 
     [Params(OperationType.CPUBound, OperationType.IOBound)]
     public OperationType Operation { get; set; }
 
+    [IterationSetup]
+    public void IterationSetup()
+    {
+        OpCount = 0;
+    }
+    
+    [IterationSetup(Target = nameof(Run_HybridCache_SingleReplica))]
+    public void IterationSetup_HybridCache_SingleReplica()
+    {
+        var services = new ServiceCollection();
 
-    [GlobalSetup]
-    public void Setup()
+        // Add PostgreSQL as distributed cache
+        services.AddDistributedPostgresCache(o =>
+        {
+            o.ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!!";
+            o.SchemaName = "public";
+            o.TableName = "single_replica_cache";
+            o.CreateIfNotExists = true;
+        });
+
+        services.AddHybridCache();
+
+        var provider = services.BuildServiceProvider();
+
+        HybridCache_SingleReplica = provider.GetRequiredService<HybridCache>();
+    }
+
+    [IterationSetup(Target = nameof(Run_HybridCache_MultipleReplica))]
+    public void IterationSetup_HybridCache_MultipleReplica()
+    {
+        var services = new ServiceCollection();
+
+        // Add PostgreSQL as distributed cache
+        services.AddDistributedPostgresCache(o =>
+        {
+            o.ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!!";
+            o.SchemaName = "public";
+            o.TableName = "multi_replica_cache";
+            o.CreateIfNotExists = true;
+        });
+
+        services.AddKeyedHybridCache(nameof(HybridCache_ReplicaA));
+        services.AddKeyedHybridCache(nameof(HybridCache_ReplicaB));
+
+        var provider = services.BuildServiceProvider();
+
+        HybridCache_ReplicaA = provider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaA));
+        HybridCache_ReplicaB = provider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaB));
+    }
+
+    [IterationSetup(Target = nameof(Run_HybridCache_L1Only))]
+    public void IterationSetup_HybridCache_L1Only()
     {
         var services = new ServiceCollection();
         services.AddHybridCache();
         var provider = services.BuildServiceProvider();
-        _hybridCache = provider.GetRequiredService<HybridCache>();
-        _memoryCache = provider.GetRequiredService<IMemoryCache>();
+        HybridCache_L1Only = provider.GetRequiredService<HybridCache>();
     }
 
-    [IterationSetup]
-    public void IterationSetup()
+    [IterationSetup(Target = nameof(Run_MemoryCache))]
+    public void IterationSetup_MemoryCache()
     {
-        _hybridCache.RemoveAsync(CacheKey).AsTask().Wait();
-        _memoryCache.Remove(CacheKey);
-        _concurrentDict.Clear();
-        OperationCounter = 0;
+        var services = new ServiceCollection();
+        services.AddMemoryCache();
+        var provider = services.BuildServiceProvider();
+        MemoryCache = provider.GetRequiredService<IMemoryCache>();
+    }
+
+    [IterationSetup(Target = nameof(Run_ConcurrentDictionary))]
+    public void IterationSetup_ConcurrentDictionary()
+    {
+        ConcurrentDictionary = [];
     }
 
     [IterationCleanup]
     public void IterationCleanup()
     {
-        if (!string.IsNullOrEmpty(_benchmarkName))
+        BenchmarkMetadata.Instance.AddMetadata("OpCount", OpCount);
+        BenchmarkMetadata.Instance.Save($"{BenchmarkName}_{ConcurrentRequests}_{Operation}");
+    }
+
+    [Benchmark]
+    public async Task Run_HybridCache_SingleReplica()
+    {
+        BenchmarkName = nameof(Run_HybridCache_SingleReplica);
+
+        var tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests; i++)
         {
-            BenchmarkMetadata.Instance.AddMetadata("OpCount", OperationCounter);
-            BenchmarkMetadata.Instance.Save($"{_benchmarkName}_{ConcurrentRequests}_{Operation}");
+            var replica = HybridCache_SingleReplica.GetOrCreateAsync(CacheKey, (ct) =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return ExecuteOperation(Operation, ct);
+            });
+
+            tasks.Add(replica.AsTask());
         }
-    }
-
-    [Benchmark(Baseline = true)]
-    [BenchmarkCategory("Stampede")]
-    public async Task HybridCache_Stampede()
-    {
-        _benchmarkName = nameof(HybridCache_Stampede);
-        var tasks = Enumerable
-            .Range(0, ConcurrentRequests)
-            .Select(_ => _hybridCache.GetOrCreateAsync(CacheKey, ct => ExecuteOperation(ct)).AsTask())
-            .ToArray();
 
         await Task.WhenAll(tasks);
     }
 
     [Benchmark]
-    [BenchmarkCategory("Stampede")]
-    public async Task MemoryCache_Stampede()
+    public async Task Run_HybridCache_MultipleReplica()
     {
-        _benchmarkName = nameof(MemoryCache_Stampede);
-        var tasks = Enumerable
-            .Range(0, ConcurrentRequests)
-            .Select(_ => Task.Run(async () =>
-            {
-                if (_memoryCache.TryGetValue(CacheKey, out var value))
-                {
-                    return value;
-                }
+        BenchmarkName = nameof(Run_HybridCache_MultipleReplica);
 
-                value = await ExecuteOperation(CancellationToken.None);
-                return _memoryCache.Set(CacheKey, value);
+        var tasks = new List<Task>(ConcurrentRequests * 2);
 
-            }))
-            .ToArray();
-
-        await Task.WhenAll(tasks);
-    }
-
-    [Benchmark]
-    [BenchmarkCategory("Stampede")]
-    public async Task ConcurrentDictionary_Stampede()
-    {
-        _benchmarkName = nameof(ConcurrentDictionary_Stampede);
-        var tasks = Enumerable
-            .Range(0, ConcurrentRequests)
-            .Select(_ => Task.Run(async () =>
-            {
-                if (_concurrentDict.TryGetValue(CacheKey, out var value))
-                {
-                    return value;
-                }
-
-                value = await ExecuteOperation(CancellationToken.None);
-                return _concurrentDict.GetOrAdd(CacheKey, value);
-            }))
-            .ToArray();
-
-        await Task.WhenAll(tasks);
-    }
-
-    private ValueTask<int> ExecuteOperation(CancellationToken ct)
-    {
-        return Operation switch
+        for (int i = 0; i < ConcurrentRequests; i++)
         {
-            OperationType.IOBound => IOBoundOperation(ct),
-            OperationType.CPUBound => CPUBoundOperation(ct),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            var replicaA = HybridCache_ReplicaA.GetOrCreateAsync(CacheKey, (ct) =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return ExecuteOperation(Operation, ct);
+            });
+
+            var replicaB = HybridCache_ReplicaB.GetOrCreateAsync(CacheKey, (ct) =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return ExecuteOperation(Operation, ct);
+            });
+
+            tasks.Add(replicaA.AsTask());
+            tasks.Add(replicaB.AsTask());
+        }
+
+        await Task.WhenAll(tasks);
     }
 
-    private static async ValueTask<int> IOBoundOperation(CancellationToken ct)
+    [Benchmark]
+    public async Task Run_HybridCache_L1Only()
     {
-        // Simulate IO-bound operation (e.g., database query)
+        BenchmarkName = nameof(Run_HybridCache_L1Only);
+
+        var tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = HybridCache_L1Only.GetOrCreateAsync(CacheKey, async (ct) =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return await ExecuteOperation(Operation, ct);
+            });
+
+            tasks.Add(task.AsTask());
+        }
+
+        await Task.WhenAll(tasks);
+    }
+
+    [Benchmark]
+    public async Task Run_MemoryCache()
+    {
+        BenchmarkName = nameof(Run_MemoryCache);
+
+        var tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = MemoryCache.GetOrCreateAsync(CacheKey, async entry =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return await ExecuteOperation(Operation, CancellationToken.None);
+            });
+
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+    }
+
+    [Benchmark]
+    public async Task Run_ConcurrentDictionary()
+    {
+        BenchmarkName = nameof(Run_ConcurrentDictionary);
+
+        var tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            var task = ConcurrentDictionary.GetOrCreateAsync(CacheKey, async () =>
+            {
+                Interlocked.Increment(ref OpCount);
+                return await ExecuteOperation(Operation, CancellationToken.None);
+            });
+        }
+
+        await Task.WhenAll(tasks);
+    }
+
+    public enum OperationType
+    {
+        IOBound,
+        CPUBound
+    }
+
+    internal static ValueTask<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
+    {
+        OperationType.IOBound => IOBoundOperation(ct),
+        OperationType.CPUBound => CPUBoundOperation(ct),
+        _ => throw new NotSupportedException()
+    };
+
+    /// <summary>
+    /// Simulates I/O-bound operation (e.g. database call)
+    /// </summary>
+    internal static async ValueTask<int> IOBoundOperation(CancellationToken ct)
+    {
         await Task.Delay(100, ct);
-        Interlocked.Increment(ref OperationCounter);
-        var result = new byte[1024].Length; // Allocate 1 KB to simulate some data
+
+        var result = new byte[1024].Length; // Simulate some memory allocation
+
         return result;
     }
 
-    private static ValueTask<int> CPUBoundOperation(CancellationToken ct)
+    /// <summary>
+    /// Simulates CPU-bound operation (e.g. complex calculation)
+    /// </summary>
+    internal static ValueTask<int> CPUBoundOperation(CancellationToken _)
     {
-        // Simulate CPU-bound operation
         var result = 0;
+
         for (int i = 0; i < 200_000_000; i++)
         {
             result += i % 7;
         }
-        Interlocked.Increment(ref OperationCounter);
+
         return ValueTask.FromResult(result);
+    }
+}
+
+public static class ConcurrentDictionaryExtensions
+{
+    public static async ValueTask<TItem> GetOrCreateAsync<TItem>(this ConcurrentDictionary<string, TItem> dict, string key, Func<ValueTask<TItem>> factory)
+    {
+        if (dict.TryGetValue(key, out var existing))
+        {
+            return existing;
+        }
+
+        var newValue = await factory();
+
+        var value = dict.GetOrAdd(key, newValue);
+
+        return value;
     }
 }
 
