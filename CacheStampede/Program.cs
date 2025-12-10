@@ -11,7 +11,8 @@ var summaryStyle = SummaryStyle
 var config = ManualConfig
     .Create(DefaultConfig.Instance)
     .WithSummaryStyle(summaryStyle)
-    .AddColumn(new OpCounterColumn());
+    .AddColumn(new OpCounterColumn())
+    .AddColumn(StatisticColumn.AllStatistics);
 
 BenchmarkSwitcher
     .FromAssembly(typeof(Program).Assembly)

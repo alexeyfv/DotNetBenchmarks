@@ -12,12 +12,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Benchmark;
 
+/// <summary>
+/// Benchmarks cache stampede protection by measuring how many times an expensive operation executes
+/// when multiple concurrent requests ask for the same uncached key simultaneously.
+/// <list type="bullet">
+/// <item><description>HybridCache_SingleReplica: HybridCache with L1 (in-memory) + L2 (PostgreSQL distributed cache). Should execute ~1 time.</description></item>
+/// <item><description>HybridCache_MultipleReplica: Two separate HybridCache instances sharing PostgreSQL L2. Tests cross-replica coordination.</description></item>
+/// <item><description>HybridCache_L1Only: HybridCache with only L1 (in-memory) cache, no L2. Should execute ~1 time.</description></item>
+/// <item><description>MemoryCache: IMemoryCache without stampede protection. Should execute ~ConcurrentRequests times.</description></item>
+/// <item><description>ConcurrentDictionary: ConcurrentDictionary without stampede protection. Should execute ~ConcurrentRequests times.</description></item>
+/// </list>
+/// </summary>
 [MemoryDiagnoser]
-[SimpleJob(iterationCount: 25)]
+[SimpleJob]
 public class HybridCacheBenchmark
 {
     public string BenchmarkName = string.Empty;
     public int OpCount = 0;
+
+    private SemaphoreSlim Semaphore { get; set; } = null!;
+    private List<Task> Tasks { get; set; } = null!;
+    private ServiceProvider ServiceProvider { get; set; } = null!;
+    private string CacheKey { get; set; } = string.Empty;
 
     private HybridCache HybridCache_SingleReplica { get; set; } = null!;
     private HybridCache HybridCache_L1Only { get; set; } = null!;
@@ -25,22 +41,16 @@ public class HybridCacheBenchmark
     private HybridCache HybridCache_ReplicaB { get; set; } = null!;
     private IMemoryCache MemoryCache = null!;
     private ConcurrentDictionary<string, int> ConcurrentDictionary = [];
-    private const string CacheKey = "test-key";
+    private const string ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!";
 
     [ParamsSource(nameof(GetConcurrentRequests))]
     public int ConcurrentRequests { get; set; }
-    
+
     public static IEnumerable<int> GetConcurrentRequests() => Enumerable.Range(1, Environment.ProcessorCount * 2);
 
     [Params(OperationType.CPUBound, OperationType.IOBound)]
     public OperationType Operation { get; set; }
 
-    [IterationSetup]
-    public void IterationSetup()
-    {
-        OpCount = 0;
-    }
-    
     [IterationSetup(Target = nameof(Run_HybridCache_SingleReplica))]
     public void IterationSetup_HybridCache_SingleReplica()
     {
@@ -49,7 +59,7 @@ public class HybridCacheBenchmark
         // Add PostgreSQL as distributed cache
         services.AddDistributedPostgresCache(o =>
         {
-            o.ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!!";
+            o.ConnectionString = ConnectionString;
             o.SchemaName = "public";
             o.TableName = "single_replica_cache";
             o.CreateIfNotExists = true;
@@ -57,9 +67,29 @@ public class HybridCacheBenchmark
 
         services.AddHybridCache();
 
-        var provider = services.BuildServiceProvider();
+        ServiceProvider = services.BuildServiceProvider();
 
-        HybridCache_SingleReplica = provider.GetRequiredService<HybridCache>();
+        HybridCache_SingleReplica = ServiceProvider.GetRequiredService<HybridCache>();
+        OpCount = 0;
+        BenchmarkName = nameof(Run_HybridCache_SingleReplica);
+        CacheKey = Guid.NewGuid().ToString();
+        Semaphore = new SemaphoreSlim(0, ConcurrentRequests);
+        Tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return await HybridCache_SingleReplica.GetOrCreateAsync(CacheKey, (ct) =>
+                {
+                    Interlocked.Increment(ref OpCount);
+                    return ExecuteOperation(Operation, ct);
+                });
+            });
+
+            Tasks.Add(task);
+        }
     }
 
     [IterationSetup(Target = nameof(Run_HybridCache_MultipleReplica))]
@@ -70,7 +100,7 @@ public class HybridCacheBenchmark
         // Add PostgreSQL as distributed cache
         services.AddDistributedPostgresCache(o =>
         {
-            o.ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!!";
+            o.ConnectionString = ConnectionString;
             o.SchemaName = "public";
             o.TableName = "multi_replica_cache";
             o.CreateIfNotExists = true;
@@ -79,10 +109,42 @@ public class HybridCacheBenchmark
         services.AddKeyedHybridCache(nameof(HybridCache_ReplicaA));
         services.AddKeyedHybridCache(nameof(HybridCache_ReplicaB));
 
-        var provider = services.BuildServiceProvider();
+        ServiceProvider = services.BuildServiceProvider();
 
-        HybridCache_ReplicaA = provider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaA));
-        HybridCache_ReplicaB = provider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaB));
+        HybridCache_ReplicaA = ServiceProvider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaA));
+        HybridCache_ReplicaB = ServiceProvider.GetRequiredKeyedService<HybridCache>(nameof(HybridCache_ReplicaB));
+
+        OpCount = 0;
+        BenchmarkName = nameof(Run_HybridCache_MultipleReplica);
+        CacheKey = Guid.NewGuid().ToString();
+        Semaphore = new SemaphoreSlim(0, ConcurrentRequests);
+        Tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests / 2; i++)
+        {
+            var taskA = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return await HybridCache_ReplicaA.GetOrCreateAsync(CacheKey, (ct) =>
+                {
+                    Interlocked.Increment(ref OpCount);
+                    return ExecuteOperation(Operation, ct);
+                });
+            });
+
+            var taskB = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return await HybridCache_ReplicaB.GetOrCreateAsync(CacheKey, (ct) =>
+                {
+                    Interlocked.Increment(ref OpCount);
+                    return ExecuteOperation(Operation, ct);
+                });
+            });
+
+            Tasks.Add(taskA);
+            Tasks.Add(taskB);
+        }
     }
 
     [IterationSetup(Target = nameof(Run_HybridCache_L1Only))]
@@ -90,8 +152,29 @@ public class HybridCacheBenchmark
     {
         var services = new ServiceCollection();
         services.AddHybridCache();
-        var provider = services.BuildServiceProvider();
-        HybridCache_L1Only = provider.GetRequiredService<HybridCache>();
+        ServiceProvider = services.BuildServiceProvider();
+        HybridCache_L1Only = ServiceProvider.GetRequiredService<HybridCache>();
+
+        OpCount = 0;
+        BenchmarkName = nameof(Run_HybridCache_L1Only);
+        CacheKey = Guid.NewGuid().ToString();
+        Semaphore = new SemaphoreSlim(0, ConcurrentRequests);
+        Tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return await HybridCache_L1Only.GetOrCreateAsync(CacheKey, (ct) =>
+                {
+                    Interlocked.Increment(ref OpCount);
+                    return ExecuteOperation(Operation, ct);
+                });
+            });
+
+            Tasks.Add(task);
+        }
     }
 
     [IterationSetup(Target = nameof(Run_MemoryCache))]
@@ -99,14 +182,59 @@ public class HybridCacheBenchmark
     {
         var services = new ServiceCollection();
         services.AddMemoryCache();
-        var provider = services.BuildServiceProvider();
-        MemoryCache = provider.GetRequiredService<IMemoryCache>();
+        ServiceProvider = services.BuildServiceProvider();
+        MemoryCache = ServiceProvider.GetRequiredService<IMemoryCache>();
+
+        OpCount = 0;
+        BenchmarkName = nameof(Run_MemoryCache);
+        CacheKey = Guid.NewGuid().ToString();
+        Semaphore = new SemaphoreSlim(0, ConcurrentRequests);
+        Tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return await MemoryCache.GetOrCreateAsync(CacheKey, async entry =>
+                {
+                    Interlocked.Increment(ref OpCount);
+                    return await ExecuteOperation(Operation, CancellationToken.None);
+                });
+            });
+
+            Tasks.Add(task);
+        }
     }
 
     [IterationSetup(Target = nameof(Run_ConcurrentDictionary))]
     public void IterationSetup_ConcurrentDictionary()
     {
         ConcurrentDictionary = [];
+        OpCount = 0;
+
+        BenchmarkName = nameof(Run_ConcurrentDictionary);
+        CacheKey = Guid.NewGuid().ToString();
+        Semaphore = new SemaphoreSlim(0, ConcurrentRequests);
+        Tasks = new List<Task>(ConcurrentRequests);
+
+        for (int i = 0; i < ConcurrentRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                if (!ConcurrentDictionary.TryGetValue(CacheKey, out var existing))
+                {
+                    Interlocked.Increment(ref OpCount);
+                    var value = await ExecuteOperation(Operation, CancellationToken.None);
+                    ConcurrentDictionary.TryAdd(CacheKey, value);
+                    return value;
+                }
+                return existing;
+            });
+
+            Tasks.Add(task);
+        }
     }
 
     [IterationCleanup]
@@ -114,116 +242,43 @@ public class HybridCacheBenchmark
     {
         BenchmarkMetadata.Instance.AddMetadata("OpCount", OpCount);
         BenchmarkMetadata.Instance.Save($"{BenchmarkName}_{ConcurrentRequests}_{Operation}");
+
+        ServiceProvider?.Dispose();
     }
 
     [Benchmark]
     public async Task Run_HybridCache_SingleReplica()
     {
-        BenchmarkName = nameof(Run_HybridCache_SingleReplica);
-
-        var tasks = new List<Task>(ConcurrentRequests);
-
-        for (int i = 0; i < ConcurrentRequests; i++)
-        {
-            var replica = HybridCache_SingleReplica.GetOrCreateAsync(CacheKey, (ct) =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return ExecuteOperation(Operation, ct);
-            });
-
-            tasks.Add(replica.AsTask());
-        }
-
-        await Task.WhenAll(tasks);
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
     }
 
     [Benchmark]
     public async Task Run_HybridCache_MultipleReplica()
     {
-        BenchmarkName = nameof(Run_HybridCache_MultipleReplica);
-
-        var tasks = new List<Task>(ConcurrentRequests * 2);
-
-        for (int i = 0; i < ConcurrentRequests; i++)
-        {
-            var replicaA = HybridCache_ReplicaA.GetOrCreateAsync(CacheKey, (ct) =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return ExecuteOperation(Operation, ct);
-            });
-
-            var replicaB = HybridCache_ReplicaB.GetOrCreateAsync(CacheKey, (ct) =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return ExecuteOperation(Operation, ct);
-            });
-
-            tasks.Add(replicaA.AsTask());
-            tasks.Add(replicaB.AsTask());
-        }
-
-        await Task.WhenAll(tasks);
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
     }
 
     [Benchmark]
     public async Task Run_HybridCache_L1Only()
     {
-        BenchmarkName = nameof(Run_HybridCache_L1Only);
-
-        var tasks = new List<Task>(ConcurrentRequests);
-
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = HybridCache_L1Only.GetOrCreateAsync(CacheKey, async (ct) =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return await ExecuteOperation(Operation, ct);
-            });
-
-            tasks.Add(task.AsTask());
-        }
-
-        await Task.WhenAll(tasks);
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
     }
 
     [Benchmark]
     public async Task Run_MemoryCache()
     {
-        BenchmarkName = nameof(Run_MemoryCache);
-
-        var tasks = new List<Task>(ConcurrentRequests);
-
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = MemoryCache.GetOrCreateAsync(CacheKey, async entry =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return await ExecuteOperation(Operation, CancellationToken.None);
-            });
-
-            tasks.Add(task);
-        }
-
-        await Task.WhenAll(tasks);
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
     }
 
     [Benchmark]
     public async Task Run_ConcurrentDictionary()
     {
-        BenchmarkName = nameof(Run_ConcurrentDictionary);
-
-        var tasks = new List<Task>(ConcurrentRequests);
-
-        for (int i = 0; i < tasks.Count; i++)
-        {
-            var task = ConcurrentDictionary.GetOrCreateAsync(CacheKey, async () =>
-            {
-                Interlocked.Increment(ref OpCount);
-                return await ExecuteOperation(Operation, CancellationToken.None);
-            });
-        }
-
-        await Task.WhenAll(tasks);
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
     }
 
     public enum OperationType
@@ -232,10 +287,10 @@ public class HybridCacheBenchmark
         CPUBound
     }
 
-    internal static ValueTask<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
+    internal static async ValueTask<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
     {
-        OperationType.IOBound => IOBoundOperation(ct),
-        OperationType.CPUBound => CPUBoundOperation(ct),
+        OperationType.IOBound => await IOBoundOperation(ct),
+        OperationType.CPUBound => await CPUBoundOperation(ct),
         _ => throw new NotSupportedException()
     };
 
@@ -244,7 +299,7 @@ public class HybridCacheBenchmark
     /// </summary>
     internal static async ValueTask<int> IOBoundOperation(CancellationToken ct)
     {
-        await Task.Delay(100, ct);
+        await Task.Delay(200, ct);
 
         var result = new byte[1024].Length; // Simulate some memory allocation
 
@@ -264,23 +319,6 @@ public class HybridCacheBenchmark
         }
 
         return ValueTask.FromResult(result);
-    }
-}
-
-public static class ConcurrentDictionaryExtensions
-{
-    public static async ValueTask<TItem> GetOrCreateAsync<TItem>(this ConcurrentDictionary<string, TItem> dict, string key, Func<ValueTask<TItem>> factory)
-    {
-        if (dict.TryGetValue(key, out var existing))
-        {
-            return existing;
-        }
-
-        var newValue = await factory();
-
-        var value = dict.GetOrAdd(key, newValue);
-
-        return value;
     }
 }
 
