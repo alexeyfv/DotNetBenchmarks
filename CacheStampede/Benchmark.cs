@@ -12,6 +12,126 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Benchmark;
 
+public abstract record BenchmarkBase
+{
+    public string Name = string.Empty;
+    public int OpCount;
+
+    internal int ConcurrentRequests = 0;
+    internal string CacheKey = string.Empty;
+    internal SemaphoreSlim Semaphore { get; set; } = null!;
+    internal List<Task> Tasks { get; set; } = null!;
+    internal ServiceProvider ServiceProvider { get; set; } = null!;
+
+    public void Setup(OperationType operationType, int concurrentRequests)
+    {
+        ConcurrentRequests = concurrentRequests;
+        OpCount = 0;
+        Name = $"{GetType().Name}_{operationType}_{concurrentRequests}";
+        CacheKey = Guid.NewGuid().ToString();
+        Tasks = [];
+        Semaphore = new SemaphoreSlim(0, concurrentRequests);
+        var services = new ServiceCollection();
+
+        RegisterServices(services);
+
+        for (int i = 0; i < concurrentRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                await Semaphore.WaitAsync();
+                return ExecuteOperationInt(operationType);
+            });
+
+            Tasks.Add(task);
+        }
+
+        ServiceProvider = services.BuildServiceProvider();
+    }
+
+    internal abstract void RegisterServices(IServiceCollection services);
+    internal abstract ValueTask<int> ExecuteOperationInt(OperationType operationType);
+
+    public void Cleanup()
+    {
+        ServiceProvider.Dispose();
+    }
+
+    public async Task Run()
+    {
+        Semaphore.Release(ConcurrentRequests);
+        await Task.WhenAll(Tasks);
+    }
+
+    internal static ValueTask<int> ExecuteOperation(OperationType op) => op switch
+    {
+        OperationType.IOBound => IOBoundOperation(),
+        OperationType.CPUBound => CPUBoundOperation(),
+        _ => throw new NotSupportedException()
+    };
+
+    /// <summary>
+    /// Simulates I/O-bound operation (e.g. database call)
+    /// </summary>
+    internal static async ValueTask<int> IOBoundOperation()
+    {
+        await Task.Delay(200);
+
+        var result = new byte[1024].Length; // Simulate some memory allocation
+
+        return result;
+    }
+
+    /// <summary>
+    /// Simulates CPU-bound operation (e.g. complex calculation)
+    /// </summary>
+    internal static ValueTask<int> CPUBoundOperation()
+    {
+        var result = 0;
+
+        for (int i = 0; i < 200_000_000; i++)
+        {
+            result += i % 7;
+        }
+
+        return ValueTask.FromResult(result);
+    }
+}
+
+public record SingleReplicaBenchmark : BenchmarkBase
+{
+    private HybridCache HybridCache_SingleReplica { get; set; } = null!;
+
+    internal override void RegisterServices(IServiceCollection services)
+    {
+        // Add PostgreSQL as distributed cache
+        services.AddDistributedPostgresCache(o =>
+        {
+            o.ConnectionString = "Host=localhost;Database=postgres;Username=sa;Password=qweQWE123!";
+            o.SchemaName = "public";
+            o.TableName = "single_replica_cache";
+            o.CreateIfNotExists = true;
+        });
+
+        services.AddHybridCache();
+    }
+
+    internal override ValueTask<int> ExecuteOperationInt(OperationType operationType)
+    {
+        return HybridCache_SingleReplica.GetOrCreateAsync(CacheKey, (_) =>
+        {
+            Interlocked.Increment(ref OpCount);
+            return ExecuteOperation(operationType);
+        });
+    }
+}
+
+public enum OperationType
+{
+    IOBound,
+    CPUBound
+}
+
 /// <summary>
 /// Benchmarks cache stampede protection by measuring how many times an expensive operation executes
 /// when multiple concurrent requests ask for the same uncached key simultaneously.
@@ -281,11 +401,6 @@ public class HybridCacheBenchmark
         await Task.WhenAll(Tasks);
     }
 
-    public enum OperationType
-    {
-        IOBound,
-        CPUBound
-    }
 
     internal static async ValueTask<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
     {
