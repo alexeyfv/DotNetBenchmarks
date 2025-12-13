@@ -21,7 +21,7 @@ public abstract class CacheStampedeBenchmarkBase
 
     public static IEnumerable<int> GetConcurrentRequests() => Enumerable.Range(1, Environment.ProcessorCount * 2);
 
-    [Params(OperationType.CPUBound)]
+    [Params(OperationType.CPUBound, OperationType.IOBound)]
     public OperationType Operation { get; set; }
 
     [GlobalSetup]
@@ -35,7 +35,7 @@ public abstract class CacheStampedeBenchmarkBase
     [GlobalCleanup]
     public virtual void GlobalCleanup()
     {
-        ServiceProvider?.Dispose();
+        ServiceProvider?.DisposeAsync().AsTask().Wait();
     }
 
     [IterationSetup]
@@ -43,23 +43,36 @@ public abstract class CacheStampedeBenchmarkBase
     {
         OpCount = 0;
         CacheKey = Guid.NewGuid().ToString();
-        Semaphore = new SemaphoreSlim(0, ConcurrentRequests); // 0 initial count to block all tasks
+        var totalTasks = GetTotalTaskCount();
+        Semaphore = new SemaphoreSlim(0, totalTasks); // 0 initial count to block all tasks
         Tasks = CreateTasks();
     }
+
+    /// <summary>
+    /// Gets the total number of tasks that will be created.
+    /// </summary>
+    protected virtual int GetTotalTaskCount() => ConcurrentRequests;
 
     [IterationCleanup]
     public virtual void IterationCleanup()
     {
         BenchmarkMetadata.Instance.AddMetadata("OpCount", OpCount);
-        BenchmarkMetadata.Instance.Save($"{ConcurrentRequests}_{Operation}");
+        BenchmarkMetadata.Instance.Save(GetBenchmarkName());
 
         ClearCache();
     }
 
+    /// <summary>
+    /// Gets the unique benchmark name used for metadata storage.
+    /// Override in derived classes to include additional parameters.
+    /// </summary>
+    protected virtual string GetBenchmarkName() => $"{ConcurrentRequests}_{Operation}";
+
     [Benchmark]
     public async Task Run()
     {
-        Semaphore.Release(ConcurrentRequests); // Release all tasks to start simultaneously
+        var totalTasks = GetTotalTaskCount();
+        Semaphore.Release(totalTasks); // Release all tasks to start simultaneously
         await Task.WhenAll(Tasks);
     }
 

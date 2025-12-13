@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.MemoryCacheBenchmark-20251212-192842</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Linux Debian GNU/Linux 12 (bookworm)
+AMD Ryzen 5 PRO 4650U with Radeon Graphics 1.40GHz, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.100
+  [Host]     : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
+  Job-CNUJVU : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>InvocationCount=1  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Operation</th><th>ConcurrentRequests</th><th>Mean</th><th>Error</th><th>StdDev</th><th>StdErr</th><th>Median</th><th>Min</th><th>Q1</th><th>Q3</th><th>Max</th><th>Op/s</th><th>Op Count</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Run</td><td>IOBound</td><td>1</td><td>200.8 ms</td><td>0.15 ms</td><td>0.14 ms</td><td>0.04 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.9 ms</td><td>201.0 ms</td><td>4.981</td><td>1.0</td><td>1976 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>2</td><td>200.7 ms</td><td>0.12 ms</td><td>0.11 ms</td><td>0.03 ms</td><td>200.7 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.8 ms</td><td>4.982</td><td>2.0</td><td>1712 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>3</td><td>200.7 ms</td><td>0.08 ms</td><td>0.07 ms</td><td>0.02 ms</td><td>200.7 ms</td><td>200.6 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.8 ms</td><td>4.982</td><td>3.0</td><td>2424 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>4</td><td>200.8 ms</td><td>0.11 ms</td><td>0.10 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.981</td><td>4.0</td><td>3136 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>5</td><td>200.7 ms</td><td>0.04 ms</td><td>0.03 ms</td><td>0.01 ms</td><td>200.7 ms</td><td>200.7 ms</td><td>200.7 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>4.982</td><td>5.0</td><td>3848 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>6</td><td>200.7 ms</td><td>0.10 ms</td><td>0.09 ms</td><td>0.02 ms</td><td>200.7 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.8 ms</td><td>4.982</td><td>6.0</td><td>4560 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>7</td><td>200.8 ms</td><td>0.13 ms</td><td>0.12 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.981</td><td>7.0</td><td>5272 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>8</td><td>200.8 ms</td><td>0.11 ms</td><td>0.10 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.8 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.981</td><td>8.0</td><td>5984 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>9</td><td>200.3 ms</td><td>1.07 ms</td><td>1.00 ms</td><td>0.26 ms</td><td>200.5 ms</td><td>196.7 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>4.992</td><td>9.0</td><td>6696 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>10</td><td>200.8 ms</td><td>0.17 ms</td><td>0.15 ms</td><td>0.04 ms</td><td>200.9 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.9 ms</td><td>201.0 ms</td><td>4.980</td><td>10.0</td><td>7408 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>11</td><td>200.7 ms</td><td>0.14 ms</td><td>0.13 ms</td><td>0.03 ms</td><td>200.7 ms</td><td>200.6 ms</td><td>200.6 ms</td><td>200.8 ms</td><td>201.0 ms</td><td>4.982</td><td>11.0</td><td>8120 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>12</td><td>200.7 ms</td><td>0.16 ms</td><td>0.15 ms</td><td>0.04 ms</td><td>200.7 ms</td><td>200.4 ms</td><td>200.6 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.983</td><td>12.0</td><td>8832 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>13</td><td>200.5 ms</td><td>1.07 ms</td><td>1.00 ms</td><td>0.26 ms</td><td>200.7 ms</td><td>196.9 ms</td><td>200.5 ms</td><td>200.8 ms</td><td>201.0 ms</td><td>4.989</td><td>13.0</td><td>9544 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>14</td><td>200.8 ms</td><td>0.14 ms</td><td>0.13 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.9 ms</td><td>200.9 ms</td><td>4.981</td><td>14.0</td><td>10256 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>15</td><td>200.7 ms</td><td>0.18 ms</td><td>0.16 ms</td><td>0.04 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.981</td><td>15.0</td><td>10968 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>16</td><td>200.7 ms</td><td>0.14 ms</td><td>0.14 ms</td><td>0.03 ms</td><td>200.6 ms</td><td>200.6 ms</td><td>200.6 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.983</td><td>16.0</td><td>11680 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>17</td><td>200.8 ms</td><td>0.10 ms</td><td>0.09 ms</td><td>0.02 ms</td><td>200.8 ms</td><td>200.6 ms</td><td>200.7 ms</td><td>200.9 ms</td><td>200.9 ms</td><td>4.980</td><td>17.0</td><td>12392 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>18</td><td>200.7 ms</td><td>0.15 ms</td><td>0.13 ms</td><td>0.04 ms</td><td>200.8 ms</td><td>200.4 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.982</td><td>18.0</td><td>13104 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>19</td><td>200.8 ms</td><td>0.21 ms</td><td>0.20 ms</td><td>0.05 ms</td><td>200.9 ms</td><td>200.4 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>201.1 ms</td><td>4.980</td><td>19.0</td><td>13816 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>20</td><td>200.8 ms</td><td>0.14 ms</td><td>0.14 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.6 ms</td><td>200.6 ms</td><td>200.9 ms</td><td>201.0 ms</td><td>4.981</td><td>20.0</td><td>14528 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>21</td><td>200.8 ms</td><td>0.15 ms</td><td>0.14 ms</td><td>0.04 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.9 ms</td><td>201.0 ms</td><td>4.981</td><td>21.0</td><td>15240 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>22</td><td>200.8 ms</td><td>0.15 ms</td><td>0.14 ms</td><td>0.04 ms</td><td>200.8 ms</td><td>200.6 ms</td><td>200.6 ms</td><td>200.8 ms</td><td>201.1 ms</td><td>4.981</td><td>22.0</td><td>15952 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>23</td><td>200.8 ms</td><td>0.13 ms</td><td>0.13 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.981</td><td>23.0</td><td>16664 B</td>
+</tr><tr><td>Run</td><td>IOBound</td><td>24</td><td>200.7 ms</td><td>0.13 ms</td><td>0.12 ms</td><td>0.03 ms</td><td>200.8 ms</td><td>200.5 ms</td><td>200.7 ms</td><td>200.8 ms</td><td>200.9 ms</td><td>4.982</td><td>24.0</td><td>17376 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>1</td><td>196.1 ms</td><td>0.86 ms</td><td>0.77 ms</td><td>0.20 ms</td><td>196.0 ms</td><td>195.0 ms</td><td>195.7 ms</td><td>196.4 ms</td><td>197.6 ms</td><td>5.099</td><td>1.0</td><td>624 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>2</td><td>198.0 ms</td><td>2.37 ms</td><td>1.98 ms</td><td>0.55 ms</td><td>198.5 ms</td><td>195.1 ms</td><td>196.3 ms</td><td>199.6 ms</td><td>201.2 ms</td><td>5.050</td><td>2.0</td><td>1104 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>3</td><td>197.0 ms</td><td>1.54 ms</td><td>1.21 ms</td><td>0.35 ms</td><td>197.1 ms</td><td>195.2 ms</td><td>196.4 ms</td><td>197.5 ms</td><td>199.7 ms</td><td>5.076</td><td>3.0</td><td>1512 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>4</td><td>205.1 ms</td><td>4.00 ms</td><td>5.20 ms</td><td>1.06 ms</td><td>205.9 ms</td><td>198.8 ms</td><td>199.7 ms</td><td>206.8 ms</td><td>217.2 ms</td><td>4.875</td><td>4.0</td><td>1920 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>5</td><td>204.9 ms</td><td>3.44 ms</td><td>2.87 ms</td><td>0.80 ms</td><td>205.9 ms</td><td>199.9 ms</td><td>202.8 ms</td><td>206.4 ms</td><td>210.2 ms</td><td>4.881</td><td>5.0</td><td>2328 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>6</td><td>206.5 ms</td><td>3.14 ms</td><td>2.94 ms</td><td>0.76 ms</td><td>205.0 ms</td><td>203.7 ms</td><td>204.5 ms</td><td>208.1 ms</td><td>211.8 ms</td><td>4.843</td><td>6.0</td><td>2736 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>7</td><td>317.4 ms</td><td>4.01 ms</td><td>3.75 ms</td><td>0.97 ms</td><td>315.8 ms</td><td>312.5 ms</td><td>315.0 ms</td><td>319.5 ms</td><td>324.4 ms</td><td>3.150</td><td>7.0</td><td>3144 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>8</td><td>317.1 ms</td><td>1.72 ms</td><td>1.61 ms</td><td>0.42 ms</td><td>317.5 ms</td><td>314.3 ms</td><td>316.0 ms</td><td>318.6 ms</td><td>319.2 ms</td><td>3.153</td><td>8.0</td><td>3552 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>9</td><td>369.0 ms</td><td>7.21 ms</td><td>13.37 ms</td><td>2.04 ms</td><td>370.3 ms</td><td>336.8 ms</td><td>362.0 ms</td><td>379.5 ms</td><td>393.3 ms</td><td>2.710</td><td>9.0</td><td>3960 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>10</td><td>386.5 ms</td><td>5.08 ms</td><td>4.50 ms</td><td>1.20 ms</td><td>385.2 ms</td><td>379.5 ms</td><td>384.5 ms</td><td>388.9 ms</td><td>395.2 ms</td><td>2.588</td><td>10.0</td><td>4368 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>11</td><td>425.3 ms</td><td>1.52 ms</td><td>1.35 ms</td><td>0.36 ms</td><td>425.3 ms</td><td>423.0 ms</td><td>424.4 ms</td><td>426.5 ms</td><td>427.3 ms</td><td>2.351</td><td>11.0</td><td>4808 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>12</td><td>434.9 ms</td><td>1.87 ms</td><td>1.56 ms</td><td>0.43 ms</td><td>434.9 ms</td><td>432.6 ms</td><td>433.4 ms</td><td>436.4 ms</td><td>436.8 ms</td><td>2.300</td><td>12.0</td><td>5184 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>13</td><td>469.1 ms</td><td>13.55 ms</td><td>39.94 ms</td><td>3.99 ms</td><td>491.4 ms</td><td>422.3 ms</td><td>425.1 ms</td><td>505.2 ms</td><td>532.3 ms</td><td>2.132</td><td>12.5</td><td>5320 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>14</td><td>492.4 ms</td><td>18.52 ms</td><td>54.61 ms</td><td>5.46 ms</td><td>513.0 ms</td><td>430.8 ms</td><td>433.5 ms</td><td>538.2 ms</td><td>580.3 ms</td><td>2.031</td><td>13.0</td><td>6000 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>15</td><td>506.8 ms</td><td>24.42 ms</td><td>72.00 ms</td><td>7.20 ms</td><td>511.4 ms</td><td>422.0 ms</td><td>424.8 ms</td><td>574.2 ms</td><td>610.6 ms</td><td>1.973</td><td>13.4</td><td>5592 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>16</td><td>526.7 ms</td><td>30.55 ms</td><td>90.08 ms</td><td>9.01 ms</td><td>583.8 ms</td><td>421.8 ms</td><td>425.5 ms</td><td>611.8 ms</td><td>635.1 ms</td><td>1.899</td><td>14.0</td><td>5728 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>17</td><td>530.9 ms</td><td>35.04 ms</td><td>103.32 ms</td><td>10.33 ms</td><td>506.6 ms</td><td>420.6 ms</td><td>426.3 ms</td><td>640.5 ms</td><td>657.5 ms</td><td>1.884</td><td>14.2</td><td>7224 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>18</td><td>565.5 ms</td><td>40.02 ms</td><td>117.99 ms</td><td>11.80 ms</td><td>654.6 ms</td><td>422.4 ms</td><td>427.8 ms</td><td>672.3 ms</td><td>696.9 ms</td><td>1.768</td><td>15.1</td><td>6000 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>19</td><td>565.1 ms</td><td>46.36 ms</td><td>136.69 ms</td><td>13.67 ms</td><td>512.2 ms</td><td>422.5 ms</td><td>425.8 ms</td><td>707.2 ms</td><td>733.2 ms</td><td>1.770</td><td>15.1</td><td>6136 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>20</td><td>570.8 ms</td><td>47.65 ms</td><td>140.51 ms</td><td>14.05 ms</td><td>510.4 ms</td><td>424.1 ms</td><td>426.3 ms</td><td>710.0 ms</td><td>762.0 ms</td><td>1.752</td><td>15.2</td><td>6272 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>21</td><td>574.5 ms</td><td>47.74 ms</td><td>140.75 ms</td><td>14.08 ms</td><td>586.2 ms</td><td>423.5 ms</td><td>426.5 ms</td><td>712.0 ms</td><td>784.7 ms</td><td>1.741</td><td>15.2</td><td>8312 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>22</td><td>474.1 ms</td><td>17.94 ms</td><td>52.91 ms</td><td>5.29 ms</td><td>432.4 ms</td><td>423.4 ms</td><td>426.9 ms</td><td>522.6 ms</td><td>580.9 ms</td><td>2.109</td><td>12.8</td><td>6544 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>23</td><td>601.6 ms</td><td>57.50 ms</td><td>169.53 ms</td><td>16.95 ms</td><td>619.8 ms</td><td>422.2 ms</td><td>426.0 ms</td><td>772.3 ms</td><td>817.8 ms</td><td>1.662</td><td>15.8</td><td>6680 B</td>
+</tr><tr><td>Run</td><td>CPUBound</td><td>24</td><td>582.9 ms</td><td>51.38 ms</td><td>151.50 ms</td><td>15.15 ms</td><td>593.9 ms</td><td>423.2 ms</td><td>426.7 ms</td><td>729.3 ms</td><td>796.6 ms</td><td>1.716</td><td>15.5</td><td>6816 B</td>
+</tr></tbody></table>
+</body>
+</html>

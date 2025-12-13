@@ -57,26 +57,33 @@ public class HybridCacheBenchmark : CacheStampedeBenchmarkBase
         base.IterationSetup();
     }
 
+    protected override string GetBenchmarkName() => $"{ReplicasCount}_{Mode}_{ConcurrentRequests}_{Operation}";
+
+    protected override int GetTotalTaskCount() => ConcurrentRequests * ReplicasCount;
+
     protected override List<Task> CreateTasks()
     {
         var tasks = new List<Task>();
 
-        for (int i = 0; i < ConcurrentRequests; i++)
+        // Create ConcurrentRequests tasks for EACH replica
+        // This simulates multiple servers experiencing cache stampede simultaneously
+        foreach (var replica in _replicas)
         {
-            var replica = _replicas[i % _replicas.Count];
-
-            var task = Task.Run(async () =>
+            for (int i = 0; i < ConcurrentRequests; i++)
             {
-                await Semaphore.WaitAsync();
-
-                return await replica.GetOrCreateAsync(CacheKey, async (cancellationToken) =>
+                var task = Task.Run(async () =>
                 {
-                    Interlocked.Increment(ref OpCount);
-                    return await ExecuteOperation(Operation, cancellationToken);
-                });
-            });
+                    await Semaphore.WaitAsync();
 
-            tasks.Add(task);
+                    return await replica.GetOrCreateAsync(CacheKey, async (cancellationToken) =>
+                    {
+                        Interlocked.Increment(ref OpCount);
+                        return await ExecuteOperation(Operation, cancellationToken);
+                    });
+                });
+
+                tasks.Add(task);
+            }
         }
 
         return tasks;
