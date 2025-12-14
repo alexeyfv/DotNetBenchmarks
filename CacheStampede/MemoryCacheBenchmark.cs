@@ -39,7 +39,7 @@ public class MemoryCacheBenchmark : CacheStampedeBenchmarkBase
                 {
                     Interlocked.Increment(ref OpCount);
                     return await ExecuteOperation(Operation, CancellationToken.None);
-                })!;
+                });
             });
 
             tasks.Add(task);

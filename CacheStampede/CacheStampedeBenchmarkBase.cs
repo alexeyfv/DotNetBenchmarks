@@ -15,6 +15,7 @@ public abstract class CacheStampedeBenchmarkBase
     protected SemaphoreSlim Semaphore { get; set; } = null!;
     protected List<Task> Tasks { get; set; } = null!;
     protected int OpCount;
+    protected int BufferSize { get; set; }
 
     [ParamsSource(nameof(GetConcurrentRequests))]
     public int ConcurrentRequests { get; set; }
@@ -30,6 +31,7 @@ public abstract class CacheStampedeBenchmarkBase
         var services = new ServiceCollection();
         ConfigureServices(services);
         ServiceProvider = services.BuildServiceProvider();
+        BufferSize = 1024;
     }
 
     [GlobalCleanup]
@@ -80,7 +82,7 @@ public abstract class CacheStampedeBenchmarkBase
     protected abstract List<Task> CreateTasks();
     protected abstract void ClearCache();
 
-    protected static Task<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
+    protected Task<int> ExecuteOperation(OperationType op, CancellationToken ct) => op switch
     {
         OperationType.IOBound => IOBoundOperation(ct),
         OperationType.CPUBound => CPUBoundOperation(ct),
@@ -90,11 +92,11 @@ public abstract class CacheStampedeBenchmarkBase
     /// <summary>
     /// Simulates I/O-bound operation (e.g. database call)
     /// </summary>
-    protected static async Task<int> IOBoundOperation(CancellationToken ct)
+    protected async Task<int> IOBoundOperation(CancellationToken ct)
     {
         await Task.Delay(200, ct);
 
-        var result = new byte[1024].Length; // Simulate some memory allocation
+        var result = new byte[BufferSize].Length; // Simulate some memory allocation
 
         return result;
     }
@@ -102,7 +104,7 @@ public abstract class CacheStampedeBenchmarkBase
     /// <summary>
     /// Simulates CPU-bound operation (e.g. complex calculation)
     /// </summary>
-    protected static Task<int> CPUBoundOperation(CancellationToken _)
+    protected Task<int> CPUBoundOperation(CancellationToken _)
     {
         var result = 0;
 
