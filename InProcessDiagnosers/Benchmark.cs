@@ -1,4 +1,5 @@
-using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using BenchmarkDotNet.Analysers;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
@@ -12,101 +13,86 @@ using BenchmarkDotNet.Validators;
 
 namespace Benchmark;
 
-public interface IMutationCountProvider
+public class CustomMetricsBenchmark
 {
-    int MutationCount { get; }
-}
+    private byte[] hash = [];
 
-[CategoriesColumn]
-[MemoryDiagnoser]
-[SimpleJob(iterationCount: 20)]
-public class CounterMutationBenchmark : IMutationCountProvider
-{
-    private int _value;
-    private int _mutations;
-    private readonly object _gate = new();
+    // Custom result to be displayed by the column
+    public string Result => Convert.ToBase64String(hash);
 
-    [Params(2, 4, 8, 16)]
-    public int ConcurrentRequests { get; set; }
+    [Params("Hello, World!", "Benchmarking is fun!")]
+    public string Input { get; set; } = string.Empty;
 
-    public int MutationCount => Volatile.Read(ref _mutations);
+    [GlobalSetup(Target = nameof(CalculateSHA256))]
+    public void SHA256Setup() => hash = new byte[SHA256.HashSizeInBytes];
 
-    [Benchmark(Baseline = true)]
-    public async Task NoLocks()
+    [GlobalSetup(Target = nameof(CalculateMD5))]
+    public void MD5Setup() => hash = new byte[MD5.HashSizeInBytes];
+
+    [Benchmark]
+    public int CalculateSHA256()
     {
-        Volatile.Write(ref _value, 0);
-        Volatile.Write(ref _mutations, 0);
+        // Get bytes for the string
+        var count = Encoding.UTF8.GetByteCount(Input);
+        Span<byte> source = stackalloc byte[count];
+        Encoding.UTF8.GetBytes(Input, source);
 
-        var semaphore = new SemaphoreSlim(0, ConcurrentRequests);
-        var tasks = new Task[ConcurrentRequests];
-
-        for (int i = 0; i < ConcurrentRequests; i++)
-        {
-            tasks[i] = Task.Run(async () =>
-            {
-                await semaphore.WaitAsync().ConfigureAwait(false);
-
-                if (Volatile.Read(ref _value) == 0)
-                {
-                    // Widen the race window so we reliably see > 1.
-                    Thread.SpinWait(20);
-
-                    Interlocked.Increment(ref _mutations);
-                    Volatile.Write(ref _value, 1);
-                }
-            });
-        }
-
-        semaphore.Release(ConcurrentRequests);
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        // Compute SHA512 hash
+        return SHA256.HashData(source, hash);
     }
 
     [Benchmark]
-    public async Task WithLock()
+    public int CalculateMD5()
     {
-        Volatile.Write(ref _value, 0);
-        Volatile.Write(ref _mutations, 0);
+        // Get bytes for the string
+        var count = Encoding.UTF8.GetByteCount(Input);
+        Span<byte> source = stackalloc byte[count];
+        Encoding.UTF8.GetBytes(Input, source);
 
-        var semaphore = new SemaphoreSlim(0, ConcurrentRequests);
-        var tasks = new Task[ConcurrentRequests];
-
-        for (int i = 0; i < ConcurrentRequests; i++)
-        {
-            tasks[i] = Task.Run(async () =>
-            {
-                await semaphore.WaitAsync().ConfigureAwait(false);
-
-                lock (_gate)
-                {
-                    if (_value == 0)
-                    {
-                        _mutations++;
-                        _value = 1;
-                    }
-                }
-            });
-        }
-
-        semaphore.Release(ConcurrentRequests);
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        // Compute MD5 hash
+        return MD5.HashData(source, hash);
     }
 }
 
-/// <summary>
-/// Minimal example of an in-process diagnoser:
-/// - Runs a handler in the benchmark process.
-/// - Handler reads a value from the benchmark instance.
-/// - Handler serializes results back to host.
-/// - Host turns it into a Metric, which BDN prints as a column.
-/// </summary>
-public sealed class CounterMutationDiagnoser : IInProcessDiagnoser
+// Custom column to display the hash result
+public sealed class HashResultColumn : IColumn
 {
-    private readonly Dictionary<BenchmarkCase, List<int>> _resultsByCase = [];
+    private static readonly Dictionary<BenchmarkCase, string> Results = [];
 
-    public IEnumerable<string> Ids => [nameof(CounterMutationDiagnoser)];
+    public static void StoreResult(BenchmarkCase benchmarkCase, string result)
+    {
+        Results[benchmarkCase] = result;
+    }
+
+    public string Id => nameof(HashResultColumn);
+    public string ColumnName => "Hash Result";
+    public string Legend => "Base64 encoded hash result";
+    public UnitType UnitType => UnitType.Dimensionless;
+    public bool AlwaysShow => true;
+    public ColumnCategory Category => ColumnCategory.Custom;
+    public int PriorityInCategory => 0;
+    public bool IsNumeric => false;
+    public bool IsAvailable(Summary summary) => true;
+    public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => false;
+
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
+    {
+        return Results.TryGetValue(benchmarkCase, out var result) ? result : "N/A";
+    }
+
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style)
+    {
+        return GetValue(summary, benchmarkCase);
+    }
+}
+
+// Diagnoser to capture the hash result
+public sealed class HashResultDiagnoser : IInProcessDiagnoser
+{
+    public IEnumerable<string> Ids => [nameof(HashResultDiagnoser)];
 
     public IEnumerable<IExporter> Exporters => [];
-
+    
     public IEnumerable<IAnalyser> Analysers => [];
 
     public RunMode GetRunMode(BenchmarkCase benchmarkCase) => RunMode.NoOverhead;
@@ -119,73 +105,35 @@ public sealed class CounterMutationDiagnoser : IInProcessDiagnoser
 
     public InProcessDiagnoserHandlerData GetHandlerData(BenchmarkCase benchmarkCase)
     {
-        // The handler type is created INSIDE the benchmark process (it must have a public parameterless ctor).
-        // It will receive the benchmark instance in Handle(...).
-        return new InProcessDiagnoserHandlerData(typeof(CounterMutationDiagnoserHandler), serializedConfig: null);
+        return new InProcessDiagnoserHandlerData(typeof(HashResultDiagnoserHandler), serializedConfig: null);
     }
 
     public void DeserializeResults(BenchmarkCase benchmarkCase, string serializedResults)
     {
-        if (!int.TryParse(serializedResults, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
-        {
-            return;
-        }
-
-        if (!_resultsByCase.TryGetValue(benchmarkCase, out var list))
-        {
-            list = [];
-            _resultsByCase.Add(benchmarkCase, list);
-        }
-
-        list.Add(value);
+        HashResultColumn.StoreResult(benchmarkCase, serializedResults);
     }
 
-    public IEnumerable<Metric> ProcessResults(DiagnoserResults results)
-    {
-        if (!_resultsByCase.TryGetValue(results.BenchmarkCase, out var values) || values.Count == 0)
-        {
-            return [];
-        }
-
-        // One value per process launch; we show the average.
-        return [new Metric(MutationsMetricDescriptor.Instance, values.Average())];
-    }
-
-    private sealed class MutationsMetricDescriptor : IMetricDescriptor
-    {
-        public static readonly IMetricDescriptor Instance = new MutationsMetricDescriptor();
-
-        public string Id => "Mutations";
-        public string DisplayName => "Mutations";
-        public string Legend => "How many times the shared counter was set (shows stampede / contention)";
-        public string NumberFormat => "N1";
-        public UnitType UnitType => UnitType.Dimensionless;
-        public string Unit => "Count";
-        public bool TheGreaterTheBetter => false;
-        public int PriorityInCategory => 0;
-        public bool GetIsAvailable(Metric metric) => true;
-    }
+    public IEnumerable<Metric> ProcessResults(DiagnoserResults results) => [];
 }
 
-public sealed class CounterMutationDiagnoserHandler : IInProcessDiagnoserHandler
+public sealed class HashResultDiagnoserHandler : IInProcessDiagnoserHandler
 {
-    private int _mutationCount;
+    private string _hashResult = string.Empty;
 
     public void Initialize(string? serializedConfig) { }
 
     public void Handle(BenchmarkSignal signal, InProcessDiagnoserActionArgs args)
     {
-        // Run after the actual benchmark run, while the benchmark instance still exists.
         if (signal != BenchmarkSignal.AfterActualRun)
         {
             return;
         }
 
-        if (args.BenchmarkInstance is IMutationCountProvider provider)
+        if (args.BenchmarkInstance is CustomMetricsBenchmark benchmark)
         {
-            _mutationCount = provider.MutationCount;
+            _hashResult = benchmark.Result;
         }
     }
 
-    public string SerializeResults() => _mutationCount.ToString(CultureInfo.InvariantCulture);
+    public string SerializeResults() => _hashResult;
 }

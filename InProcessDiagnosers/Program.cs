@@ -9,7 +9,8 @@ var summaryStyle = SummaryStyle
 
 var config = ManualConfig
     .Create(DefaultConfig.Instance)
-    .AddDiagnoser(new Benchmark.CounterMutationDiagnoser())
+    .AddDiagnoser(new Benchmark.HashResultDiagnoser())
+    .AddColumn(new Benchmark.HashResultColumn())
     .WithSummaryStyle(summaryStyle);
 
 BenchmarkSwitcher
