@@ -59,4 +59,5 @@
   <Project Path="CodeAnalysis/CodeAnalysis.csproj" />
   <Project Path="CacheStampede/CacheStampede.csproj" />
   <Project Path="InProcessDiagnosers/InProcessDiagnosers.csproj" />
+  <Project Path="Postgres/Postgres.csproj" />
 </Solution>

@@ -1,9 +1,30 @@
 using System.Diagnostics;
 using System.Text;
+using BenchmarkDotNet.Attributes;
 using Npgsql;
 using NpgsqlTypes;
 
 namespace Benchmark;
+
+[MemoryDiagnoser]
+[IterationCount(25)]
+public class BulkCopyBenchmark
+{
+    [ParamsSource(nameof(CreateTableParams))]
+    public string TableParams { get; set; } = string.Empty;
+
+    public static (string, string)[] CreateTableParams()
+    {
+        return
+        [
+            ("temp", "create temp table"),
+            ("unlogged", "create unlogged table"),
+            ("regular", "create table")
+        ];
+    }
+
+    public string
+}
 
 public static class AllInOneBenchmark
 {
@@ -31,7 +52,7 @@ public static class AllInOneBenchmark
             new Param("with_index", "create index idx_billing_data on billing_data(resource, billing_date) include (cost);"),
             new Param("no_index", "")
         ];
-        
+
         Param[] analyzeParams =
         [
             new Param("analyze", "analyze billing_data;"),
