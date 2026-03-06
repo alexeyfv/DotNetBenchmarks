@@ -1,0 +1,35 @@
+services:
+  # PostgreSQL for default use
+  pg_default:
+    container_name: pg_default
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 128mb
+    ports:
+      - 1111:5432
+    environment:
+      POSTGRES_DB: "pg_default"
+      POSTGRES_USER: "sa"
+      POSTGRES_PASSWORD: "qweQWE123!!"
+      PGDATA: /var/lib/postgresql/17/docker
+    volumes:
+      - pgdata_default:/var/lib/postgresql
+  # PostgreSQL for analytics
+  pg_analytics:
+    container_name: pg_analytics
+    image: timescale/timescaledb:latest-pg17
+    restart: unless-stopped
+    shm_size: 128mb
+    ports:
+      - 2222:5432
+    environment:
+      POSTGRES_DB: "pg_analytics"
+      POSTGRES_USER: "sa"
+      POSTGRES_PASSWORD: "qweQWE123!!"
+      PGDATA: /var/lib/postgresql/17/docker
+    volumes:
+      - pgdata_analytics:/var/lib/postgresql
+
+volumes:
+  pgdata_default:
+  pgdata_analytics:

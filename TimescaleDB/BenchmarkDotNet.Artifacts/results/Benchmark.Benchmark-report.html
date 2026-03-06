@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmark.Benchmark-20260306-135858</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.22631.6649/23H2/2023Update/SunValley3)
+12th Gen Intel Core i7-12800H 2.40GHz, 1 CPU, 20 logical and 14 physical cores
+.NET SDK 10.0.100
+  [Host]     : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
+  Job-VNIRUV : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>IterationCount=20  Categories=all_resources  
+</code></pre>
+
+<table>
+<thead><tr><th>Method           </th><th>ResourcesCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>AllResources_Default</td><td>10</td><td>252.2 ms</td><td>3.07 ms</td><td>3.54 ms</td><td>baseline</td><td></td><td>-</td><td>4.12 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>10</td><td>182.4 ms</td><td>14.89 ms</td><td>17.14 ms</td><td>-28%</td><td>9.3%</td><td>-</td><td>4.14 KB</td><td>+1%</td>
+</tr><tr><td>AllResources_Default</td><td>20</td><td>258.9 ms</td><td>3.20 ms</td><td>3.56 ms</td><td>baseline</td><td></td><td>-</td><td>7.16 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>20</td><td>191.2 ms</td><td>16.87 ms</td><td>19.43 ms</td><td>-26%</td><td>10.0%</td><td>-</td><td>7.19 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>30</td><td>261.1 ms</td><td>3.81 ms</td><td>4.07 ms</td><td>baseline</td><td></td><td>-</td><td>10.21 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>30</td><td>197.6 ms</td><td>7.11 ms</td><td>8.19 ms</td><td>-24%</td><td>4.3%</td><td>-</td><td>10.55 KB</td><td>+3%</td>
+</tr><tr><td>AllResources_Default</td><td>40</td><td>266.8 ms</td><td>11.01 ms</td><td>12.68 ms</td><td>baseline</td><td></td><td>-</td><td>13.26 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>40</td><td>199.6 ms</td><td>5.49 ms</td><td>6.32 ms</td><td>-25%</td><td>5.5%</td><td>-</td><td>13.28 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>50</td><td>267.0 ms</td><td>5.74 ms</td><td>5.90 ms</td><td>baseline</td><td></td><td>-</td><td>16.3 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>50</td><td>204.2 ms</td><td>6.87 ms</td><td>7.91 ms</td><td>-24%</td><td>4.3%</td><td>-</td><td>16.33 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>60</td><td>262.6 ms</td><td>7.27 ms</td><td>7.78 ms</td><td>baseline</td><td></td><td>-</td><td>19.35 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>60</td><td>200.6 ms</td><td>4.89 ms</td><td>5.63 ms</td><td>-24%</td><td>3.9%</td><td>-</td><td>19.38 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>70</td><td>265.2 ms</td><td>9.98 ms</td><td>11.50 ms</td><td>baseline</td><td></td><td>-</td><td>22.4 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>70</td><td>159.2 ms</td><td>8.10 ms</td><td>9.32 ms</td><td>-40%</td><td>7.1%</td><td>-</td><td>22.42 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>80</td><td>262.3 ms</td><td>4.74 ms</td><td>5.46 ms</td><td>baseline</td><td></td><td>-</td><td>25.56 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>80</td><td>197.6 ms</td><td>9.01 ms</td><td>10.37 ms</td><td>-25%</td><td>5.5%</td><td>-</td><td>25.47 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>90</td><td>262.7 ms</td><td>3.21 ms</td><td>3.70 ms</td><td>baseline</td><td></td><td>-</td><td>28.73 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>90</td><td>224.7 ms</td><td>51.83 ms</td><td>50.91 ms</td><td>-14%</td><td>22.0%</td><td>-</td><td>28.52 KB</td><td>-1%</td>
+</tr><tr><td>AllResources_Default</td><td>100</td><td>258.8 ms</td><td>3.70 ms</td><td>3.96 ms</td><td>baseline</td><td></td><td>-</td><td>31.77 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>100</td><td>194.5 ms</td><td>20.68 ms</td><td>23.81 ms</td><td>-25%</td><td>12.0%</td><td>-</td><td>31.56 KB</td><td>-1%</td>
+</tr><tr><td>AllResources_Default</td><td>200</td><td>273.1 ms</td><td>4.30 ms</td><td>4.96 ms</td><td>baseline</td><td></td><td>-</td><td>62.01 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>200</td><td>206.3 ms</td><td>11.16 ms</td><td>12.86 ms</td><td>-24%</td><td>6.3%</td><td>-</td><td>62.03 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>300</td><td>264.0 ms</td><td>3.40 ms</td><td>3.34 ms</td><td>baseline</td><td></td><td>-</td><td>92.48 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>300</td><td>196.8 ms</td><td>28.46 ms</td><td>32.78 ms</td><td>-25%</td><td>16.3%</td><td>-</td><td>92.5 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>400</td><td>264.3 ms</td><td>3.95 ms</td><td>4.55 ms</td><td>baseline</td><td></td><td>-</td><td>123.18 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>400</td><td>197.2 ms</td><td>8.86 ms</td><td>10.20 ms</td><td>-25%</td><td>5.3%</td><td>-</td><td>122.97 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>500</td><td>265.1 ms</td><td>2.89 ms</td><td>3.33 ms</td><td>baseline</td><td></td><td>-</td><td>153.53 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>500</td><td>203.8 ms</td><td>9.24 ms</td><td>10.64 ms</td><td>-23%</td><td>5.2%</td><td>-</td><td>153.44 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>600</td><td>266.6 ms</td><td>3.65 ms</td><td>4.20 ms</td><td>baseline</td><td></td><td>-</td><td>183.88 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>600</td><td>157.9 ms</td><td>4.37 ms</td><td>4.09 ms</td><td>-41%</td><td>2.9%</td><td>-</td><td>183.91 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>700</td><td>272.3 ms</td><td>8.94 ms</td><td>9.56 ms</td><td>baseline</td><td></td><td>-</td><td>214.35 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>700</td><td>215.9 ms</td><td>8.09 ms</td><td>9.32 ms</td><td>-21%</td><td>5.4%</td><td>-</td><td>214.59 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>800</td><td>291.4 ms</td><td>5.47 ms</td><td>6.08 ms</td><td>baseline</td><td></td><td>-</td><td>244.82 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>800</td><td>200.9 ms</td><td>17.73 ms</td><td>20.42 ms</td><td>-31%</td><td>10.1%</td><td>-</td><td>244.84 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>900</td><td>283.6 ms</td><td>3.37 ms</td><td>3.31 ms</td><td>baseline</td><td></td><td>-</td><td>275.29 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>900</td><td>193.4 ms</td><td>12.31 ms</td><td>14.17 ms</td><td>-32%</td><td>7.2%</td><td>-</td><td>275.31 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>1000</td><td>299.9 ms</td><td>4.64 ms</td><td>4.97 ms</td><td>baseline</td><td></td><td>-</td><td>305.88 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>1000</td><td>237.2 ms</td><td>11.73 ms</td><td>13.50 ms</td><td>-21%</td><td>5.8%</td><td>-</td><td>305.78 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>2000</td><td>351.8 ms</td><td>3.65 ms</td><td>4.20 ms</td><td>baseline</td><td></td><td>-</td><td>610.77 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>2000</td><td>270.8 ms</td><td>12.94 ms</td><td>14.90 ms</td><td>-23%</td><td>5.5%</td><td>-</td><td>610.7 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>3000</td><td>693.7 ms</td><td>252.93 ms</td><td>291.27 ms</td><td>baseline</td><td></td><td>-</td><td>893.55 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>3000</td><td>276.8 ms</td><td>20.09 ms</td><td>23.13 ms</td><td>-52%</td><td>40.6%</td><td>-</td><td>892.77 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>4000</td><td>399.8 ms</td><td>6.69 ms</td><td>7.44 ms</td><td>baseline</td><td></td><td>-</td><td>1173.7 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>4000</td><td>364.5 ms</td><td>10.64 ms</td><td>10.45 ms</td><td>-9%</td><td>3.3%</td><td>-</td><td>1173.41 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>5000</td><td>433.5 ms</td><td>9.13 ms</td><td>10.51 ms</td><td>baseline</td><td></td><td>-</td><td>1454.2 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>5000</td><td>400.1 ms</td><td>9.00 ms</td><td>10.36 ms</td><td>-8%</td><td>3.4%</td><td>-</td><td>1453.87 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>6000</td><td>460.3 ms</td><td>11.31 ms</td><td>13.03 ms</td><td>baseline</td><td></td><td>-</td><td>1734.74 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>6000</td><td>416.4 ms</td><td>8.00 ms</td><td>9.21 ms</td><td>-9%</td><td>3.5%</td><td>-</td><td>1734.39 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>7000</td><td>477.3 ms</td><td>7.34 ms</td><td>8.45 ms</td><td>baseline</td><td></td><td>-</td><td>2015.24 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>7000</td><td>462.6 ms</td><td>7.49 ms</td><td>8.63 ms</td><td>-3%</td><td>2.5%</td><td>-</td><td>2014.91 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>8000</td><td>468.8 ms</td><td>7.91 ms</td><td>9.11 ms</td><td>baseline</td><td></td><td>-</td><td>2295.65 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>8000</td><td>492.9 ms</td><td>12.36 ms</td><td>14.24 ms</td><td>+5%</td><td>3.4%</td><td>-</td><td>2295.34 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>9000</td><td>483.1 ms</td><td>7.97 ms</td><td>9.18 ms</td><td>baseline</td><td></td><td>-</td><td>2576.17 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>9000</td><td>490.5 ms</td><td>13.13 ms</td><td>15.12 ms</td><td>+2%</td><td>3.5%</td><td>-</td><td>2575.73 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>10000</td><td>459.9 ms</td><td>4.63 ms</td><td>5.33 ms</td><td>baseline</td><td></td><td>-</td><td>2856.58 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>10000</td><td>543.1 ms</td><td>12.85 ms</td><td>14.28 ms</td><td>+18%</td><td>2.8%</td><td>-</td><td>2856.27 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>20000</td><td>546.9 ms</td><td>7.73 ms</td><td>8.59 ms</td><td>baseline</td><td></td><td>-</td><td>5668.3 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>20000</td><td>897.5 ms</td><td>19.31 ms</td><td>21.46 ms</td><td>+64%</td><td>2.8%</td><td>-</td><td>5667.91 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>30000</td><td>635.8 ms</td><td>8.64 ms</td><td>9.60 ms</td><td>baseline</td><td></td><td>-</td><td>8479.68 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>30000</td><td>1,309.3 ms</td><td>27.92 ms</td><td>32.15 ms</td><td>+106%</td><td>2.8%</td><td>-</td><td>8479.23 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>40000</td><td>714.6 ms</td><td>14.53 ms</td><td>16.73 ms</td><td>baseline</td><td></td><td>-</td><td>11290.63 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>40000</td><td>1,613.8 ms</td><td>20.55 ms</td><td>23.67 ms</td><td>+126%</td><td>2.7%</td><td>-</td><td>11291.05 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>50000</td><td>716.8 ms</td><td>11.90 ms</td><td>12.22 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>14054.43 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>50000</td><td>2,061.2 ms</td><td>55.53 ms</td><td>63.95 ms</td><td>+188%</td><td>3.4%</td><td>1000.0000</td><td>14055.39 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>60000</td><td>850.2 ms</td><td>10.38 ms</td><td>11.53 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>16633.49 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>60000</td><td>2,208.0 ms</td><td>25.36 ms</td><td>26.04 ms</td><td>+160%</td><td>1.7%</td><td>1000.0000</td><td>16632.67 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>70000</td><td>841.0 ms</td><td>11.70 ms</td><td>11.49 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>19210.77 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>70000</td><td>2,557.8 ms</td><td>19.07 ms</td><td>19.58 ms</td><td>+204%</td><td>1.5%</td><td>1000.0000</td><td>19210.8 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>80000</td><td>956.4 ms</td><td>23.59 ms</td><td>27.17 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>21788.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>80000</td><td>2,813.7 ms</td><td>40.97 ms</td><td>43.84 ms</td><td>+194%</td><td>3.1%</td><td>1000.0000</td><td>21788.92 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>90000</td><td>939.6 ms</td><td>20.52 ms</td><td>19.19 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>90000</td><td>3,103.5 ms</td><td>24.80 ms</td><td>28.56 ms</td><td>+230%</td><td>2.1%</td><td>1000.0000</td><td>23438.83 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>100000</td><td>961.6 ms</td><td>42.26 ms</td><td>41.50 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>100000</td><td>3,082.0 ms</td><td>66.03 ms</td><td>73.39 ms</td><td>+221%</td><td>4.4%</td><td>1000.0000</td><td>23438.83 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>200000</td><td>954.9 ms</td><td>19.73 ms</td><td>21.11 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>200000</td><td>3,158.4 ms</td><td>57.07 ms</td><td>53.38 ms</td><td>+231%</td><td>2.7%</td><td>1000.0000</td><td>23438.92 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>300000</td><td>899.1 ms</td><td>10.56 ms</td><td>11.30 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>300000</td><td>3,118.2 ms</td><td>36.17 ms</td><td>40.20 ms</td><td>+247%</td><td>1.8%</td><td>1000.0000</td><td>23438.83 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>400000</td><td>960.6 ms</td><td>23.38 ms</td><td>25.99 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>400000</td><td>3,150.3 ms</td><td>33.69 ms</td><td>36.05 ms</td><td>+228%</td><td>2.8%</td><td>1000.0000</td><td>23438.92 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>500000</td><td>976.3 ms</td><td>15.64 ms</td><td>18.01 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>500000</td><td>3,043.5 ms</td><td>21.30 ms</td><td>24.53 ms</td><td>+212%</td><td>2.0%</td><td>1000.0000</td><td>23438.83 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>600000</td><td>971.8 ms</td><td>24.12 ms</td><td>26.81 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>600000</td><td>3,591.5 ms</td><td>254.10 ms</td><td>282.43 ms</td><td>+270%</td><td>8.1%</td><td>1000.0000</td><td>23438.83 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>700000</td><td>910.7 ms</td><td>20.56 ms</td><td>22.86 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.8 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>700000</td><td>3,044.8 ms</td><td>135.77 ms</td><td>127.00 ms</td><td>+235%</td><td>4.7%</td><td>1000.0000</td><td>23438.83 KB</td><td>+0%</td>
+</tr><tr><td>AllResources_Default</td><td>800000</td><td>916.2 ms</td><td>15.80 ms</td><td>18.19 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>800000</td><td>3,126.6 ms</td><td>60.16 ms</td><td>64.38 ms</td><td>+241%</td><td>2.8%</td><td>1000.0000</td><td>23438.83 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>900000</td><td>931.4 ms</td><td>13.23 ms</td><td>15.23 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>900000</td><td>3,066.2 ms</td><td>31.74 ms</td><td>32.60 ms</td><td>+229%</td><td>1.9%</td><td>1000.0000</td><td>23438.83 KB</td><td>-0%</td>
+</tr><tr><td>AllResources_Default</td><td>1000000</td><td>935.0 ms</td><td>12.70 ms</td><td>13.05 ms</td><td>baseline</td><td></td><td>1000.0000</td><td>23438.9 KB</td><td></td>
+</tr><tr><td>AllResources_Hypertable</td><td>1000000</td><td>3,127.1 ms</td><td>32.41 ms</td><td>36.02 ms</td><td>+235%</td><td>1.8%</td><td>1000.0000</td><td>23438.92 KB</td><td>+0%</td>
+</tr></tbody></table>
+</body>
+</html>
