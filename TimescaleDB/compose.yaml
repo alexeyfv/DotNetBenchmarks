@@ -4,7 +4,7 @@ services:
     container_name: pg_default
     image: postgres:17
     restart: unless-stopped
-    shm_size: 128mb
+    shm_size: 1g
     ports:
       - 1111:5432
     environment:
@@ -19,7 +19,7 @@ services:
     container_name: pg_analytics
     image: timescale/timescaledb:latest-pg17
     restart: unless-stopped
-    shm_size: 128mb
+    shm_size: 1g
     ports:
       - 2222:5432
     environment:

@@ -10,7 +10,7 @@ namespace Benchmark;
 
 [CategoriesColumn]
 [MemoryDiagnoser]
-[SimpleJob(iterationCount: 20)]
+[SimpleJob(iterationCount: 100, warmupCount: 30)]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 public class Benchmark
 {
@@ -19,6 +19,7 @@ public class Benchmark
 
     public static IEnumerable<int> ResourceCounts()
     {
+        // yield return 10;
         for (var i = 10; i < 100; i += 10) yield return i;
         for (var i = 100; i < 1000; i += 100) yield return i;
         for (var i = 1000; i < 10_000; i += 1000) yield return i;
@@ -54,7 +55,8 @@ public class Benchmark
     WITH (
         timescaledb.hypertable = true,
         timescaledb.chunk_interval='1 day',
-        timescaledb.segmentby='resource_id'
+        timescaledb.segmentby='resource_id',
+        timescaledb.orderby='charge_date DESC'
     );
     """;
 
@@ -68,7 +70,8 @@ public class Benchmark
     WITH (
         timescaledb.hypertable = true,
         timescaledb.chunk_interval='1 day',
-        timescaledb.segmentby='resource_id'
+        timescaledb.segmentby='resource_id',
+        timescaledb.orderby='charge_date DESC'
     );
     """;
 
@@ -98,7 +101,7 @@ public class Benchmark
     private const string DailyCloudCostRollupPostgresSql =
     """
     SELECT
-        date_trunc('day', charge_date) AS day,
+        date_bin('1 day', charge_date, TIMESTAMP 'epoch') AS day,
         resource_id,
         SUM(billed_cost) AS total_cost
     FROM billing_data
@@ -120,7 +123,7 @@ public class Benchmark
     private const string SingleResourceDailyRollupPostgresSql =
     """
     SELECT
-        date_trunc('day', charge_date) AS day,
+        date_bin('1 day', charge_date, TIMESTAMP 'epoch') AS day,
         SUM(billed_cost) AS total_cost
     FROM billing_data
     WHERE charge_date >= now() - interval '30 days'
@@ -201,34 +204,36 @@ public class Benchmark
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("all_resources")]
-    public long AllResources_Default() =>
+    public Task<long> AllResources_Default() =>
         ExecuteBenchmark(PostgresDefaultConnString, DailyCloudCostRollupPostgresSql);
 
     [Benchmark]
     [BenchmarkCategory("all_resources")]
-    public long AllResources_Hypertable() =>
+    public Task<long> AllResources_Hypertable() =>
         ExecuteBenchmark(PostgresAnalyticsConnString, DailyCloudCostRollupTimescaleSql);
 
     // [Benchmark(Baseline = true)]
     // [BenchmarkCategory("single_resource")]
-    public long SingleResource_Default() =>
+    public Task<long> SingleResource_Default() =>
         ExecuteBenchmarkWithResourceId(PostgresDefaultConnString, SingleResourceDailyRollupPostgresSql);
 
     // [Benchmark]
     // [BenchmarkCategory("single_resource")]
-    public long SingleResource_Hypertable_Columnstore() =>
+    public Task<long> SingleResource_Hypertable_Columnstore() =>
         ExecuteBenchmarkWithResourceId(PostgresAnalyticsConnString, SingleResourceDailyRollupTimescaleSql);
 
-    private static long ExecuteBenchmark(string connString, string sql)
+    private static async Task<long> ExecuteBenchmark(string connString, string sql)
     {
         using var conn = new NpgsqlConnection(connString);
-        conn.Open();
+        await conn.OpenAsync();
 
         using var cmd = new NpgsqlCommand(sql, conn);
-        using var reader = cmd.ExecuteReader();
+        await cmd.PrepareAsync();
+
+        using var reader = await cmd.ExecuteReaderAsync();
 
         var checksum = 17L;
-        while (reader.Read())
+        while (await reader.ReadAsync())
         {
             checksum = HashCode.Combine(checksum, reader.GetValue(0));
         }
@@ -236,10 +241,10 @@ public class Benchmark
         return checksum;
     }
 
-    private long ExecuteBenchmarkWithResourceId(string connString, string sql)
+    private async Task<long> ExecuteBenchmarkWithResourceId(string connString, string sql)
     {
         using var conn = new NpgsqlConnection(connString);
-        conn.Open();
+        await conn.OpenAsync();
 
         using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.Add(new NpgsqlParameter("resourceId", NpgsqlDbType.Integer)
@@ -247,10 +252,12 @@ public class Benchmark
             Value = _sampleResourceId
         });
 
-        using var reader = cmd.ExecuteReader();
+        await cmd.PrepareAsync();
+
+        using var reader = await cmd.ExecuteReaderAsync();
 
         var checksum = 17L;
-        while (reader.Read())
+        while (await reader.ReadAsync())
         {
             checksum = HashCode.Combine(checksum, reader.GetValue(0));
         }
